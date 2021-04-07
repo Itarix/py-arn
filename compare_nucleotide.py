@@ -1,10 +1,22 @@
 import getopt, sys
 
-opts, argv = getopt.getopt(sys.argv[1:], "h", ['help'])
-for k, v in opts:
-    if k == '-h' or k == '-help':
-        print('help')
-        helpText = """This script is used to compare sequence of nucleotides
+
+def format_error(error_message, val1, val2, index):
+    return f'Error: {error_message:30} => sequence 1 : {val1:1} vs sequence 2 : {val2:1} ==> at position {index:10d}'
+
+
+def is_can_be_imbriquate(val1, val2):
+    if val1 == "A" and val2 == "U":
+        is_imbricate = True
+    elif val1 == "C" and val2 == "G":
+        is_imbricate = True
+    else:
+        is_imbricate = False
+    return is_imbricate
+
+
+def usage():
+    helpText = """This script is used to compare sequence of nucleotides
         
         This script accept parameters of this list. 
         
@@ -22,44 +34,56 @@ for k, v in opts:
             Variable of percentage of accepted comparison. 
             Example = --percent=50
             Default value is : 30
-        --decalSeq1
+        --decalSeq2
             If true : it will add space to sequence 1.
             If false: it will add space to sequence 2.
-            Example = --decalSeq1=true
-            Default value is : true
+            Example = --decalSeq1
+            Default value is : false
         --output
             Specify the file where the file of result will be create.
             Example = --output=resultFile.txt
             Default value is : result.txt
-        --verbose
-            Specify if this script will write to standard output (so to terminal)
 """
-        print(helpText)
+    print(helpText)
 
-
-print("hello world")
-
-exit(1)
-def format_error(error_message, val1, val2, index):
-    return f'Error: {error_message:30} => sequence 1 : {val1:1} vs sequence 2 : {val2:1} ==> at position {index:10d}'
-
-
-def is_can_be_imbriquate(val1, val2):
-    if val1 == "A" and val2 == "U":
-        is_imbricate = True
-    elif val1 == "C" and val2 == "G":
-        is_imbricate = True
-    else:
-        is_imbricate = False
-    return is_imbricate
 
 error_percent = 30
 sequence_1 = "UCGUACCGUGAGUAAUAAUGCGB"
 sequence_2 = "UAACACUGUCUGGUAACGAUGU"
-
 # jf true so it will add space before sequence 2
 # If False so it will add space before sequence 1
-add_space_sequence2 = False
+add_space_sequence1 = True
+filename_output = "result.txt"
+
+try:
+    opts, argv = getopt.getopt(
+        sys.argv[1:],
+        "h",
+        ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq2']
+    )
+except getopt.GetoptError as err:
+    # print help information and exit:
+    usage()
+    print(err)  # will print something like "option -a not recognized"
+    sys.exit(2)
+
+for k, v in opts:
+    if k == '-h' or k == '--help':
+        usage()
+        sys.exit(0)
+    if k == '--sequence1':
+        sequence_1 = v
+    if k == '--sequence2':
+        sequence_2 = v
+    if k == '--percent':
+        error_percent = v
+    if k == '--output':
+        filename_output = v
+    if k == '--decalSeq2':
+        add_space_sequence1 = False
+
+
+exit(1)
 
 size_sequence_1 = len(sequence_1)
 size_sequence_2 = len(sequence_2)
@@ -70,7 +94,7 @@ if len(sequence_2) > len(sequence_1):
     min_size_sequence = size_sequence_1
     max_size_sequence = size_sequence_2
 
-f = open("result.txt", "w")
+f = open(filename_output, "w")
 
 nb_error = 0
 for i in range(0, size_sequence_1):
@@ -99,10 +123,10 @@ copy_sequence_2 = sequence_2
 copy_sequence_1 = sequence_1
 for i in range(0, size_sequence_1):
     if i > 0:
-        if add_space_sequence2:
-            copy_sequence_2 = " " + copy_sequence_2
-        else:
+        if add_space_sequence1:
             copy_sequence_1 = " " + copy_sequence_1
+        else:
+            copy_sequence_2 = " " + copy_sequence_2
 
     size_sequence_1 = len(copy_sequence_1)
     size_sequence_2 = len(copy_sequence_2)
@@ -122,10 +146,12 @@ for i in range(0, size_sequence_1):
             f.write(format_error("Can be imbricate", copy_sequence_1[i], copy_sequence_2[i], i) + "\n")
             nb_error_imbricate = nb_error_imbricate + 1
 
-    f.write(f'We have found : {nb_error_imbricate:1d} error. Percent {nb_error_imbricate/min_size_sequence*100:1.02f}\n')
-    print(f'We have found : {nb_error_imbricate:1d} error. Percent {nb_error_imbricate/min_size_sequence*100:1.02f}')
-    if nb_error_imbricate/min_size_sequence*100 > error_percent:
-        print(f'Bad combination : {nb_error_imbricate/min_size_sequence*100:1.02f}%')
-        f.write(f'Bad combination : {nb_error_imbricate/min_size_sequence*100:1.02f}%\n')
+    f.write(
+        f'We have found : {nb_error_imbricate:1d} error. Percent {nb_error_imbricate / min_size_sequence * 100:1.02f}\n')
+    print(
+        f'We have found : {nb_error_imbricate:1d} error. Percent {nb_error_imbricate / min_size_sequence * 100:1.02f}')
+    if nb_error_imbricate / min_size_sequence * 100 > error_percent:
+        print(f'Bad combination : {nb_error_imbricate / min_size_sequence * 100:1.02f}%')
+        f.write(f'Bad combination : {nb_error_imbricate / min_size_sequence * 100:1.02f}%\n')
 
 f.close()
