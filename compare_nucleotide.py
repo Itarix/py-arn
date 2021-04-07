@@ -1,6 +1,45 @@
+import getopt, sys
+
+opts, argv = getopt.getopt(sys.argv[1:], "h", ['help'])
+for k, v in opts:
+    if k == '-h' or k == '-help':
+        print('help')
+        helpText = """This script is used to compare sequence of nucleotides
+        
+        This script accept parameters of this list. 
+        
+        --help (shortcut: -h)
+            Show the way how use the script
+        --sequence1
+            First Sequence to be compare.
+            Example = --sequence1=UCGA
+            Default value is : UCGUACCGUGAGUAAUAAUGCGB
+        --sequence2
+            Second Sequence to be compare. 
+            Example = --sequence1=UCGA
+            Default value is : UAACACUGUCUGGUAACGAUGU
+        --percent
+            Variable of percentage of accepted comparison. 
+            Example = --percent=50
+            Default value is : 30
+        --decalSeq1
+            If true : it will add space to sequence 1.
+            If false: it will add space to sequence 2.
+            Example = --decalSeq1=true
+            Default value is : true
+        --output
+            Specify the file where the file of result will be create.
+            Example = --output=resultFile.txt
+            Default value is : result.txt
+        --verbose
+            Specify if this script will write to standard output (so to terminal)
+"""
+        print(helpText)
+
+
 print("hello world")
 
-
+exit(1)
 def format_error(error_message, val1, val2, index):
     return f'Error: {error_message:30} => sequence 1 : {val1:1} vs sequence 2 : {val2:1} ==> at position {index:10d}'
 
