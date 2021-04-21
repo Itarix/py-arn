@@ -1,9 +1,9 @@
 import getopt, sys
+from datetime import datetime
 
 from nucleotide import str_to_nucleotides
 from nucleotide import nucleotides_to_str
 import itertools
-
 
 class CompareNucleotide:
     def __init__(self, sequence1, sequence2, percent_error, add_space_sequence_1, verbose=False):
@@ -30,8 +30,8 @@ class CompareNucleotide:
         write("-------------------------------------", self.verbose, file)
         write("Check sequences Loop Method Start.", self.verbose, file)
 
-        nucleotide_sequences1 = str_to_nucleotides("AGCUACCCCGGGUUUAGVF")
-        nucleotide_sequences2 = str_to_nucleotides("AGCUACCCCGGGUUUAGVF")
+        nucleotide_sequences1 = str_to_nucleotides(self.sequence1)
+        nucleotide_sequences2 = str_to_nucleotides(self.sequence2)
 
         # copy all object
         cp_nucleotide1 = nucleotide_sequences1
@@ -186,7 +186,6 @@ def usage():
         --output
             Specify the file where the file of result will be create.
             Example = --output=/tmp/resultFile.txt
-            Default value is : /tmp/result.txt
 """
     print(helpText)
 
@@ -199,7 +198,7 @@ if __name__ == "__main__":
     # jf true so it will add space before sequence 2
     # If False so it will add space before sequence 1
     add_space_sequence1 = True
-    filename_output = "/tmp/result.txt"
+    filename_output = None
     is_verbose = False
 
     try:
@@ -209,7 +208,6 @@ if __name__ == "__main__":
             ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq2', 'verbose']
         )
     except getopt.GetoptError as err:
-        # print help information and exit:
         usage()
         print(err)  # will print something like "option -a not recognized"
         sys.exit(2)
@@ -231,9 +229,19 @@ if __name__ == "__main__":
         if k == '--verbose':
             is_verbose = True
 
-    file_output = open(filename_output, "w")
+    file_output = None
+    if filename_output is not None:
+        file_output = open(filename_output, "w")
+
+    date_format = '%Y%m%d%H%M%S'
+    start_time = datetime.now()
     compare_nucl = CompareNucleotide(
         sequence_1, sequence_2, error_percent, add_space_sequence1, is_verbose
     )
     compare_nucl.analyse_sequence(file_output)
-    file_output.close()
+
+    end_time = datetime.now()
+    if file_output is not None:
+        file_output.close()
+
+    print('Duration of this script: {}'.format(end_time - start_time))
