@@ -1,6 +1,6 @@
 import getopt, sys
 from datetime import datetime
-
+import math
 from nucleotide import str_to_nucleotides
 from nucleotide import nucleotides_to_str
 import itertools
@@ -232,6 +232,12 @@ if __name__ == "__main__":
     file_output = None
     if filename_output is not None:
         file_output = open(filename_output, "w")
+
+    factorielle_sequence1 = math.factorial(len(sequence_1))
+    factorielle_sequence2 = math.factorial(len(sequence_2))
+
+    print(f'We predict generate {factorielle_sequence1:30} possibilities for the sequence 1')
+    print(f'We predict generate {factorielle_sequence2:30} possibilities for the sequence 2')
 
     date_format = '%Y%m%d%H%M%S'
     start_time = datetime.now()
