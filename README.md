@@ -14,3 +14,6 @@ python3 compare_nucleotide.py.
 
 The script will be create/override a file named result.txt which it contains output of the script.
 You can see output of the script in standard output (terminal)
+
+# Property
+This software is the property of Quentin Cousin. https://gitlab.com/Itarix.
