@@ -3,7 +3,6 @@ class Nucleotide:
         self.original_position = position
         self.value = value
 
-
 def str_to_nucleotides(sequence):
     list = []
     for i in range(0, len(sequence)):
