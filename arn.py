@@ -3,7 +3,7 @@ from nucleotide import Nucleotide
 
 class Arn:
 
-    def __init__(self, sequence:str):
+    def __init__(self, sequence: str):
         self.sequence_arn_str = sequence
 
         tmp = []

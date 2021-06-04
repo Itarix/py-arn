@@ -19,11 +19,11 @@ class CompareNucleotide:
             self.max_size_sequence = self.size_sequence_2
 
     def _check_nucleotides_loop_(self, file=None):
-        write("-------------------------------------", self.verbose, file)
-        write("Check sequences Loop Method Start.", self.verbose, file)
-
-        nucleotide_sequences1 = str_to_nucleotides(self.sequence1)
-        nucleotide_sequences2 = str_to_nucleotides(self.sequence2)
+        # write("-------------------------------------", self.verbose, file)
+        # write("Check sequences Loop Method Start.", self.verbose, file)
+        #
+        # nucleotide_sequences1 = str_to_nucleotides(self.sequence1)
+        # nucleotide_sequences2 = str_to_nucleotides(self.sequence2)
 
         # copy all object
         cp_nucleotide1 = nucleotide_sequences1
