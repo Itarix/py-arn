@@ -1,6 +1,7 @@
 import itertools
+import multiprocessing
 
-from arn import Arn
+from arn import Arn, arn_to_str
 from log import format_error, Log
 
 
@@ -72,6 +73,25 @@ def compare_line_arn(arn1: Arn, arn2: Arn, logger: Log, add_space_sequence_1: bo
 
     logger.debug("Check sequences with linear method End.")
     logger.debug("-------------------------------------")
+
+
+def test(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30, nb_thread: int = 1):
+    copy_sequence_1 = arn1.get_sequence_list()
+    copy_sequence_2 = arn2.get_sequence_list()
+
+    p = multiprocessing.Pool(nb_thread)
+    p.apply_async(process, ["file1.txt", copy_sequence_1])
+    p.apply_async(process, ["file2.txt", copy_sequence_2])
+
+    p.close()
+    p.join()
+
+
+def process(name_file, sequence):
+    size_sequence = len(sequence)
+    with open(name_file, 'w') as f:
+        for result in itertools.permutations(sequence, size_sequence):
+            f.write(f'{arn_to_str(result)}\n')
 
 
 def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30):

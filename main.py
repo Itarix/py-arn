@@ -1,8 +1,9 @@
+import datetime
 import getopt, sys
 
 import log
 from arn import Arn
-from compare_arn import compare_strict_arn, compare_line_arn, compare_loop_arn
+from compare_arn import compare_strict_arn, compare_line_arn, compare_loop_arn, test
 
 
 def usage():
@@ -36,6 +37,10 @@ def usage():
         --output
             Specify the file where the file of result will be create.
             Example = --output=/tmp/resultFile.txt
+        --nbThread
+            Specify the number of thread used for treatment which need processing long time.
+            Default : 1
+            Example = --output=2
 """
     print(help_text)
 
@@ -50,12 +55,13 @@ if __name__ == "__main__":
     add_space_sequence1 = True
     filename_output = ""
     is_verbose = False
+    nb_thread = 1
 
     try:
         opts, argv = getopt.getopt(
             sys.argv[1:],
             "h",
-            ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq1', 'verbose']
+            ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq1', 'verbose', 'nbThread=']
         )
     except getopt.GetoptError as err:
         usage()
@@ -78,11 +84,17 @@ if __name__ == "__main__":
             add_space_sequence1 = False
         if k == '--verbose':
             is_verbose = True
+        if k == '--nbThread':
+            nb_thread = int(v)
 
     logger = log.Log(None, is_verbose, filename_output)
     arn1 = Arn(sequence_1)
     arn2 = Arn(sequence_2)
 
-    compare_strict_arn(arn1, arn2, logger)
-    compare_line_arn(arn1, arn2, logger, add_space_sequence1, error_percent)
-    compare_loop_arn(arn1, arn2, logger, error_percent)
+    print(datetime.datetime.now())
+    # compare_strict_arn(arn1, arn2, logger)
+    # compare_line_arn(arn1, arn2, logger, add_space_sequence1, error_percent)
+    # compare_loop_arn(arn1, arn2, logger, error_percent)
+    test(arn1, arn2, logger, 30, nb_thread)
+    print(datetime.datetime.now())
+

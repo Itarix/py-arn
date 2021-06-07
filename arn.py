@@ -16,3 +16,10 @@ class Arn:
 
     def get_sequence_str(self):
         return self.sequence_arn_str
+
+
+def arn_to_str(sequence: list):
+    tmp = ""
+    for i in range(0, len(sequence)):
+        tmp = tmp + sequence[i].value + str(sequence[i].original_position)
+    return tmp
