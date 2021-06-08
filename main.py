@@ -85,7 +85,7 @@ if __name__ == "__main__":
         if k == '--verbose':
             is_verbose = True
         if k == '--nbProcess':
-            nb_process = v
+            nb_process = int(v)
 
     logger = log.Log(None, is_verbose, filename_output)
     arn1 = Arn(sequence_1)
