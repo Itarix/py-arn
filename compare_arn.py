@@ -67,7 +67,7 @@ def compare_line_arn(arn1: Arn, arn2: Arn, logger: Log, add_space_sequence_1: bo
             logger.error(f'Bad combination : {percent:1.02f}%')
 
 
-def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30, nb_process: int = 2):
+def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30, nb_process=2):
     copy_sequence_1 = arn1.get_sequence_list()
     copy_sequence_2 = arn2.get_sequence_list()
 
@@ -85,12 +85,13 @@ def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30,
                 print("hoho")
                 __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logger, error_percent)
     else:
-        p = multiprocessing.Pool(nb_process)
+        p = multiprocessing.Pool(processes=nb_process)
         for sequence1 in permutations(copy_sequence_1):
             print("ha")
             for sequence2 in permutations(copy_sequence_2):
                 print("hoho")
-                p.apply_async(__compare_loop_arn_sequence__, [sequence1, sequence2, min_size_sequence, logger, error_percent])
+                p.apply_async(__compare_loop_arn_sequence__,
+                              [sequence1, sequence2, min_size_sequence, logger, error_percent])
         p.close()
         p.join()
 
@@ -118,42 +119,6 @@ def __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logge
 
         if percent > error_percent:
             logger.debug(f'Bad combination : {percent:1.02f}%')
-
-
-# def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30):
-#     for seq_1 in permutations(copy_sequence_1):
-#         for seq_2 in permutations(copy_sequence_2):
-#     seq_1_position = []
-#     loop_broken = False
-#
-#     for k in range(0, len(seq_1)):
-#         seq_1_position.append(seq_1[k].original_position)
-#         nb_error_imbricate = 0
-#         seq_2_position = []
-#         for l in range(0, len(seq_2)):
-#             seq_2_position.append(seq_2[l].original_position)
-#
-#             if is_can_be_imbriquate(seq_1[k].value, seq_2[l].value):
-#                 if max(seq_2_position) > seq_2[l].original_position or \
-#                         max(seq_1_position) > seq_1[k].original_position:
-#                     loop_broken = True
-#                     break
-#                 logger.debug(
-#                     f'Can be imbricate : {seq_1[k].value:1} at {k:1d} position ===> {seq_2[l].value:1} at {l:1d} position')
-#                 nb_error_imbricate = nb_error_imbricate + 1
-#
-#         if loop_broken:
-#             break
-#
-#         percent = nb_error_imbricate / min_size_sequence * 100
-#         logger.debug(f'We have found : {nb_error_imbricate:1d} error. Percent {percent:1.02f}')
-#
-#         if percent > error_percent:
-#             logger.debug(f'Bad combination : {percent:1.02f}%')
-#
-#     if loop_broken:
-#         logger.debug(f'Broken loop : Sequence 1 : {seq_1} ==> Sequence 2 : {seq_2}')
-#         break
 
 
 def is_can_be_imbriquate(val1: str, val2: str):
