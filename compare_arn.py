@@ -82,6 +82,8 @@ def test(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30, nb_thread: 
     p = multiprocessing.Pool(nb_thread)
     p.apply_async(process, ["file1.txt", copy_sequence_1])
     p.apply_async(process, ["file2.txt", copy_sequence_2])
+#https://docs.python.org/2/library/multiprocessing.html#using-a-pool-of-workers
+    #https://stackoverflow.com/questions/20886565/using-multiprocessing-process-with-a-maximum-number-of-simultaneous-processes
 
     p.close()
     p.join()
