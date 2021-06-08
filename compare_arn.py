@@ -14,7 +14,7 @@ def compare_strict_arn(arn1: Arn, arn2: Arn, logger: Log):
 
     nb_error = 0
     for i in range(0, size_sequence_1):
-        if size_sequence_1 != size_sequence_2 and (i == size_sequence_1 or i == size_sequence_2):
+        if size_sequence_1 != size_sequence_2 and (i in (size_sequence_1, size_sequence_2)):
             logger.warning(format_error("Bad size sequences", sequence_1[i], " ", i))
             nb_error = nb_error + 1
             break
