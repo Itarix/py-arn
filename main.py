@@ -48,21 +48,23 @@ def usage():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    error_percent = 30
-    sequence_1 = "UCGUACCGUGAGUAAUAAUGCGB"
-    sequence_2 = "UAACACUGUCUGGUAACGAUGQ"
+    ERROR_PERCENT = 30
+    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCGB"
+    SEQUENCE_2 = "UAACACUGUCUGGUAACGAUGQ"
     # jf true so it will add space before sequence 2
     # If False so it will add space before sequence 1
-    add_space_sequence1 = True
-    filename_output = ""
-    is_verbose = False
-    nb_process = 1
+    ADD_SPACE_SEQUENCE_1 = True
+    FILENAME_OUTPUT = ""
+    IS_VERBOSE = False
+    NB_PROCESS = 1
 
     try:
         opts, argv = getopt.getopt(
             sys.argv[1:],
             "h",
-            ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq1', 'verbose', 'nbProcess=']
+            [
+                'help', 'decalSeq1', 'verbose',
+                'sequence1=', 'sequence2=', 'percent=', 'output=', 'nbProcess=']
         )
     except getopt.GetoptError as err:
         usage()
@@ -70,27 +72,27 @@ if __name__ == "__main__":
         sys.exit(2)
 
     for k, v in opts:
-        if k == '-h' or k == '--help':
+        if k in ('-h', '--help'):
             usage()
             sys.exit(0)
         if k == '--sequence1':
-            sequence_1 = v
+            SEQUENCE_1 = v
         if k == '--sequence2':
-            sequence_2 = v
+            SEQUENCE_2 = v
         if k == '--percent':
-            error_percent = v
+            ERROR_PERCENT = v
         if k == '--output':
-            filename_output = v
+            FILENAME_OUTPUT = v
         if k == '--decalSeq1':
-            add_space_sequence1 = False
+            ADD_SPACE_SEQUENCE_1 = False
         if k == '--verbose':
-            is_verbose = True
+            IS_VERBOSE = True
         if k == '--nbProcess':
-            nb_process = int(v)
+            NB_PROCESS = int(v)
 
-    logger = log.Log(None, is_verbose, filename_output)
-    arn1 = Arn(sequence_1)
-    arn2 = Arn(sequence_2)
+    logger = log.Log(None, IS_VERBOSE, FILENAME_OUTPUT)
+    arn1 = Arn(SEQUENCE_1)
+    arn2 = Arn(SEQUENCE_2)
 
     dateDebut = datetime.datetime.now()
 
@@ -102,16 +104,15 @@ if __name__ == "__main__":
 
     # logger.debug("-------------------------------------")
     # logger.debug("Check sequences with linear method Start.")
-    # compare_line_arn(arn1, arn2, logger, add_space_sequence1, error_percent)
+    # compare_line_arn(arn1, arn2, logger, ADD_SPACE_SEQUENCE_1, ERROR_PERCENT)
     # logger.debug("Check sequences with linear method End.")
     # logger.debug("-------------------------------------")
 
     logger.debug("-------------------------------------")
     logger.debug("Check sequences Loop Method Start.")
-    compare_loop_arn(arn1, arn2, logger, error_percent, nb_process)
+    compare_loop_arn(arn1, arn2, logger, ERROR_PERCENT, NB_PROCESS)
     logger.debug("Check sequences Loop Method End.")
     logger.debug("-------------------------------------")
 
     print(dateDebut)
     print(datetime.datetime.now())
-

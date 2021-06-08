@@ -1,10 +1,7 @@
 import itertools
 import multiprocessing
-import os
 
-import psutil as psutil
-
-from arn import Arn, arn_to_str
+from arn import Arn
 from log import format_error, Log
 
 
@@ -30,7 +27,11 @@ def compare_strict_arn(arn1: Arn, arn2: Arn, logger: Log):
         logger.warning(f'Number of errors while analyse sequences =>  {nb_error:1d}')
 
 
-def compare_line_arn(arn1: Arn, arn2: Arn, logger: Log, add_space_sequence_1: bool = False, error_percent: int = 30):
+def compare_line_arn(
+        arn1: Arn, arn2: Arn,
+        logger: Log, add_space_sequence_1: bool = False,
+        error_percent: int = 30
+):
     copy_sequence_1 = arn1.get_sequence_str()
     copy_sequence_2 = arn2.get_sequence_str()
 
@@ -52,22 +53,35 @@ def compare_line_arn(arn1: Arn, arn2: Arn, logger: Log, add_space_sequence_1: bo
         size_sequence_2 = len(copy_sequence_2)
 
         nb_error_imbricate = 0
-        logger.debug(f'Analyse => sequence 1 : {copy_sequence_1:1} vs sequence 2 : {copy_sequence_2:1}')
+        logger.debug(
+            f'Analyse => sequence 1 : {copy_sequence_1:1} vs sequence 2 : {copy_sequence_2:1}'
+        )
         for i in range(0, size_sequence_2):
-            if size_sequence_1 != size_sequence_2 and (i + 1 == size_sequence_1 or i + 1 == size_sequence_2):
+            if size_sequence_1 != size_sequence_2 and \
+                    (i + 1 == size_sequence_1 or i + 1 == size_sequence_2):
                 logger.debug("end of sequences")
                 break
             if is_can_be_imbriquate(copy_sequence_1[i], copy_sequence_2[i]):
-                logger.warning(format_error("Can be imbricate", copy_sequence_1[i], copy_sequence_2[i], i))
+                logger.warning(
+                    format_error(
+                        "Can be imbricate", copy_sequence_1[i], copy_sequence_2[i], i
+                    )
+                )
                 nb_error_imbricate = nb_error_imbricate + 1
 
         percent = nb_error_imbricate / min_size_sequence * 100
-        logger.info(f'We have found : {nb_error_imbricate:1d} error. Percent {percent:1.02f}')
+        logger.info(
+            f'We have found : {nb_error_imbricate:1d} error. Percent {percent:1.02f}'
+        )
         if percent > error_percent:
             logger.error(f'Bad combination : {percent:1.02f}%')
 
 
-def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30, nb_process=2):
+def compare_loop_arn(
+        arn1: Arn, arn2: Arn,
+        logger: Log, error_percent: int = 30,
+        nb_process=2
+):
     copy_sequence_1 = arn1.get_sequence_list()
     copy_sequence_2 = arn2.get_sequence_list()
 
@@ -83,7 +97,10 @@ def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30,
             print("ha")
             for sequence2 in permutations(copy_sequence_2):
                 print("hoho")
-                __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logger, error_percent)
+                __compare_loop_arn_sequence__(
+                    sequence1, sequence2,
+                    min_size_sequence, logger, error_percent
+                )
     else:
         with multiprocessing.Pool(processes=nb_process) as pool_process:
             for sequence1 in permutations(copy_sequence_1):
@@ -113,7 +130,8 @@ def __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logge
                         max(seq_1_position_history) > sequence1[k].original_position:
                     return
                 logger.debug(
-                    f'Can be imbricate : {sequence1[k].value:1} at {k:1d} position ===> {sequence2[l].value:1} at {l:1d} position')
+                    f'Can be imbricate : {sequence1[k].value:1} at {k:1d} position ===> {sequence2[l].value:1} at {l:1d} position'
+                )
                 nb_error_imbricate = nb_error_imbricate + 1
 
         percent = nb_error_imbricate / min_size_sequence * 100
