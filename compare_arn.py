@@ -78,15 +78,21 @@ def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30,
     if size_sequence2 > size_sequence1:
         min_size_sequence = size_sequence1
 
-    p = multiprocessing.Pool(nb_process)
-    for sequence1 in permutations(copy_sequence_1):
-        print("ha")
-        for sequence2 in permutations(copy_sequence_2):
-            print("hoho")
-            p.apply_async(__compare_loop_arn_sequence__, [sequence1, sequence2, min_size_sequence, logger, error_percent])
-
-    p.close()
-    p.join()
+    if nb_process == 1:
+        for sequence1 in permutations(copy_sequence_1):
+            print("ha")
+            for sequence2 in permutations(copy_sequence_2):
+                print("hoho")
+                __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logger, error_percent)
+    else:
+        p = multiprocessing.Pool(nb_process)
+        for sequence1 in permutations(copy_sequence_1):
+            print("ha")
+            for sequence2 in permutations(copy_sequence_2):
+                print("hoho")
+                p.apply_async(__compare_loop_arn_sequence__, [sequence1, sequence2, min_size_sequence, logger, error_percent])
+        p.close()
+        p.join()
 
 
 def __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logger, error_percent):
