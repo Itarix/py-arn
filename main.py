@@ -3,7 +3,7 @@ import getopt, sys
 
 import log
 from arn import Arn
-from compare_arn import compare_strict_arn, compare_line_arn, compare_loop_arn, test
+from compare_arn import compare_strict_arn, compare_line_arn, compare_loop_arn
 
 
 def usage():
@@ -55,13 +55,12 @@ if __name__ == "__main__":
     add_space_sequence1 = True
     filename_output = ""
     is_verbose = False
-    nb_thread = 1
 
     try:
         opts, argv = getopt.getopt(
             sys.argv[1:],
             "h",
-            ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq1', 'verbose', 'nbThread=']
+            ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq1', 'verbose']
         )
     except getopt.GetoptError as err:
         usage()
@@ -84,17 +83,32 @@ if __name__ == "__main__":
             add_space_sequence1 = False
         if k == '--verbose':
             is_verbose = True
-        if k == '--nbThread':
-            nb_thread = int(v)
 
     logger = log.Log(None, is_verbose, filename_output)
     arn1 = Arn(sequence_1)
     arn2 = Arn(sequence_2)
 
-    print(datetime.datetime.now())
+    # print(datetime.datetime.now())
+    dateDebut = datetime.datetime.now()
+    # logger.debug("-------------------------------------")
+    # logger.debug("Check sequences Start.")
     # compare_strict_arn(arn1, arn2, logger)
+    # logger.debug("Check sequences End.")
+    # logger.debug("-------------------------------------")
+
+    # logger.debug("-------------------------------------")
+    # logger.debug("Check sequences with linear method Start.")
     # compare_line_arn(arn1, arn2, logger, add_space_sequence1, error_percent)
-    # compare_loop_arn(arn1, arn2, logger, error_percent)
-    test(arn1, arn2, logger, 30, nb_thread)
+    # logger.debug("Check sequences with linear method End.")
+    # logger.debug("-------------------------------------")
+
+    logger.debug("-------------------------------------")
+    logger.debug("Check sequences Loop Method Start.")
+    compare_loop_arn(arn1, arn2, logger, error_percent)
+    logger.debug("Check sequences Loop Method End.")
+    logger.debug("-------------------------------------")
+
+
+    print(dateDebut)
     print(datetime.datetime.now())
 
