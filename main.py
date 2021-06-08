@@ -111,7 +111,6 @@ if __name__ == "__main__":
     logger.debug("Check sequences Loop Method End.")
     logger.debug("-------------------------------------")
 
-
     print(dateDebut)
     print(datetime.datetime.now())
 
