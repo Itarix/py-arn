@@ -1,9 +1,10 @@
 import datetime
-import getopt, sys
+import getopt
+import sys
 
 import log
 from arn import Arn
-from compare_arn import compare_strict_arn, compare_line_arn, compare_loop_arn
+from compare_arn import compare_loop_arn
 
 
 def usage():

@@ -1,0 +1,27 @@
+stages:
+  - code-quality
+
+lint:
+  image: python:3.6
+  stage: code-quality
+  before_script:
+    - pip3 install -r requirements.txt
+  script:
+    - pylint *.py
+
+
+#publish-image:
+#  image: docker
+#  services:
+#    - docker:dind
+#  stage: publish
+#  only:
+#    - tags
+#  except:
+#    - branches
+#  before_script:
+#    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#  script:
+#    - ./build-publish.sh
+#  after_script:
+#    - docker logout $CI_REGISTRY

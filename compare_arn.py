@@ -85,25 +85,27 @@ def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30,
                 print("hoho")
                 __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logger, error_percent)
     else:
-        p = multiprocessing.Pool(processes=nb_process)
-        for sequence1 in permutations(copy_sequence_1):
-            print("ha")
-            for sequence2 in permutations(copy_sequence_2):
-                print("hoho")
-                p.apply_async(__compare_loop_arn_sequence__,
-                              [sequence1, sequence2, min_size_sequence, logger, error_percent])
-        p.close()
-        p.join()
+        with multiprocessing.Pool(processes=nb_process) as pool_process:
+            for sequence1 in permutations(copy_sequence_1):
+                print("ha")
+                for sequence2 in permutations(copy_sequence_2):
+                    print("hoho")
+                    pool_process.apply_async(
+                        __compare_loop_arn_sequence__,
+                        [sequence1, sequence2, min_size_sequence, logger, error_percent]
+                    )
+        # p.close()
+        # p.join()
 
 
 def __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logger, error_percent):
     seq_1_position_history = []
 
-    for k in range(0, len(sequence1)):
+    for k in enumerate(len(sequence1)):
         seq_1_position_history.append(sequence1[k].original_position)
         nb_error_imbricate = 0
         seq_2_position_history = []
-        for l in range(0, len(sequence2)):
+        for l in enumerate(len(sequence2)):
             seq_2_position_history.append(sequence2[l].original_position)
 
             if is_can_be_imbriquate(sequence1[k].value, sequence2[l].value):
