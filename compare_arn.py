@@ -67,18 +67,7 @@ def compare_line_arn(arn1: Arn, arn2: Arn, logger: Log, add_space_sequence_1: bo
             logger.error(f'Bad combination : {percent:1.02f}%')
 
 
-def limit_cpu():
-    "is called at every process start"
-    p = psutil.Process(os.getpid())
-    # set to lowest priority, this is windows only, on Unix use ps.nice(19)
-    priority = 19
-    if os.name == 'nt':
-        priority = psutil.BELOW_NORMAL_PRIORITY_CLASS
-
-    p.nice(priority)
-
-
-def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30):
+def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30, nb_process: int = 2):
     copy_sequence_1 = arn1.get_sequence_list()
     copy_sequence_2 = arn2.get_sequence_list()
 
@@ -89,7 +78,7 @@ def compare_loop_arn(arn1: Arn, arn2: Arn, logger: Log, error_percent: int = 30)
     if size_sequence2 > size_sequence1:
         min_size_sequence = size_sequence1
 
-    p = multiprocessing.Pool(None, limit_cpu)
+    p = multiprocessing.Pool(nb_process)
     for sequence1 in permutations(copy_sequence_1):
         print("ha")
         for sequence2 in permutations(copy_sequence_2):
