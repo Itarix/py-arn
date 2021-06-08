@@ -61,7 +61,7 @@ if __name__ == "__main__":
         opts, argv = getopt.getopt(
             sys.argv[1:],
             "h",
-            ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq1', 'verbose', 'nbProcess']
+            ['help', 'sequence1=', 'sequence2=', 'percent=', 'output=', 'decalSeq1', 'verbose', 'nbProcess=']
         )
     except getopt.GetoptError as err:
         usage()
