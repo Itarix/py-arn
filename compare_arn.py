@@ -1,7 +1,8 @@
 import itertools
 import multiprocessing
+from math import factorial
 
-from arn import Arn
+from arn import Arn, arn_to_str
 from log import format_error, Log
 
 
@@ -93,36 +94,60 @@ def compare_loop_arn(
         min_size_sequence = size_sequence1
 
     if nb_process == 1:
-        for sequence1 in permutations(copy_sequence_1):
-            print("ha")
-            for sequence2 in permutations(copy_sequence_2):
-                print("hoho")
-                __compare_loop_arn_sequence__(
+        for sequence1 in __permutations__(copy_sequence_1):
+            for sequence2 in __permutations__(copy_sequence_2):
+                _compare_loop_arn_sequence_(
                     sequence1, sequence2,
                     min_size_sequence, logger, error_percent
                 )
     else:
-        with multiprocessing.Pool(processes=nb_process) as pool_process:
-            for sequence1 in permutations(copy_sequence_1):
-                print("ha")
-                for sequence2 in permutations(copy_sequence_2):
-                    print("hoho")
-                    pool_process.apply_async(
-                        __compare_loop_arn_sequence__,
-                        [sequence1, sequence2, min_size_sequence, logger, error_percent]
+        nb_stock = 100000
+        # print(factorial(size_sequence1))
+        # 25 factorielle
+        # 25 852 016 738 884 976 640 000
+        for sequence1 in __permutations__(copy_sequence_1):
+            tab_sequence2 = []
+            for sequence2 in __permutations__(copy_sequence_2):
+                tab_sequence2.append(sequence2)
+                if len(tab_sequence2) >= nb_stock:
+                    __compare_sequence_by_list_on_async__(
+                        sequence1, tab_sequence2,
+                        min_size_sequence, logger, error_percent,
+                        nb_process, error_percent
                     )
-        # p.close()
-        # p.join()
+                    tab_sequence2 = []
+            if len(tab_sequence2) > 0:
+                __compare_sequence_by_list_on_async__(
+                    sequence1, tab_sequence2,
+                    min_size_sequence, logger, error_percent,
+                    nb_process, error_percent
+                )
 
 
-def __compare_loop_arn_sequence__(sequence1, sequence2, min_size_sequence, logger, error_percent):
+def __compare_sequence_by_list_on_async__(
+        sequence1, tab_sequence2,
+        min_size_sequence, logger,
+        error_percent, nb_process,
+        nb_stock
+):
+    with multiprocessing.Pool(processes=nb_process, maxtasksperchild=nb_stock) as pool_process:
+        for seq_tmp in tab_sequence2:
+            pool_process.apply_async(
+                _compare_loop_arn_sequence_,
+                [sequence1, seq_tmp, min_size_sequence, logger, error_percent]
+            )
+        pool_process.close()
+        pool_process.join()
+
+
+def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger, error_percent):
     seq_1_position_history = []
 
-    for k in enumerate(len(sequence1)):
+    for k in range(0, len(sequence1)):
         seq_1_position_history.append(sequence1[k].original_position)
         nb_error_imbricate = 0
         seq_2_position_history = []
-        for l in enumerate(len(sequence2)):
+        for l in range(0, len(sequence2)):
             seq_2_position_history.append(sequence2[l].original_position)
 
             if is_can_be_imbriquate(sequence1[k].value, sequence2[l].value):
@@ -151,5 +176,5 @@ def is_can_be_imbriquate(val1: str, val2: str):
     return is_imbricate
 
 
-def permutations(list_to_permute: list):
+def __permutations__(list_to_permute: list):
     return itertools.permutations(list_to_permute, len(list_to_permute))
