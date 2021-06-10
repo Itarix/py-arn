@@ -21,5 +21,6 @@ class Arn:
 def arn_to_str(sequence: list):
     tmp = ""
     for i in range(0, len(sequence)):
-        tmp = tmp + sequence[i].value + str(sequence[i].original_position)
+        tmp = tmp + sequence[i].value
     return tmp
+

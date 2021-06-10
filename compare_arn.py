@@ -113,14 +113,14 @@ def compare_loop_arn(
                     __compare_sequence_by_list_on_async__(
                         sequence1, tab_sequence2,
                         min_size_sequence, logger, error_percent,
-                        nb_process, error_percent
+                        nb_process, nb_stock
                     )
                     tab_sequence2 = []
             if len(tab_sequence2) > 0:
                 __compare_sequence_by_list_on_async__(
                     sequence1, tab_sequence2,
                     min_size_sequence, logger, error_percent,
-                    nb_process, error_percent
+                    nb_process, nb_stock
                 )
 
 
@@ -143,27 +143,31 @@ def __compare_sequence_by_list_on_async__(
 def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger, error_percent):
     seq_1_position_history = []
 
+    seq1_str = arn_to_str(sequence1)
+    seq2_str = arn_to_str(sequence2)
+
     for k in range(0, len(sequence1)):
         seq_1_position_history.append(sequence1[k].original_position)
         nb_error_imbricate = 0
         seq_2_position_history = []
         for l in range(0, len(sequence2)):
+            logger.debug(f'Process {seq1_str:26} | {seq2_str:26}')
             seq_2_position_history.append(sequence2[l].original_position)
-
+            # 1 : GCGB
             if is_can_be_imbriquate(sequence1[k].value, sequence2[l].value):
                 if max(seq_2_position_history) > sequence2[l].original_position or \
                         max(seq_1_position_history) > sequence1[k].original_position:
                     return
-                logger.debug(
-                    f'Can be imbricate : {sequence1[k].value:1} at {k:1d} position ===> {sequence2[l].value:1} at {l:1d} position'
-                )
+                # logger.debug(
+                #     f'Can be imbricate : {sequence1[k].value:1} at {k:1d} position ===> {sequence2[l].value:1} at {l:1d} position'
+                # )
                 nb_error_imbricate = nb_error_imbricate + 1
 
         percent = nb_error_imbricate / min_size_sequence * 100
-        logger.debug(f'We have found : {nb_error_imbricate:1d} error. Percent {percent:1.02f}')
+        # logger.debug(f'We have found : {nb_error_imbricate:1d} error. Percent {percent:1.02f}')
 
-        if percent > error_percent:
-            logger.debug(f'Bad combination : {percent:1.02f}%')
+        # if percent > error_percent:
+        #     logger.debug(f'Bad combination : {percent:1.02f}%')
 
 
 def is_can_be_imbriquate(val1: str, val2: str):
