@@ -37,6 +37,7 @@ def usage():
             Example = --verbose
         --output
             Specify the file where the file of result will be create.
+            Warning. The output file can be huge. At least 60GB
             Example = --output=/tmp/resultFile.txt
         --nbProcess
             Specify the number of process used for treatment which need processing long time.
@@ -89,6 +90,10 @@ if __name__ == "__main__":
             IS_VERBOSE = True
         if k == '--nbProcess':
             NB_PROCESS = int(v)
+
+    if len(SEQUENCE_1) > 30 or len(SEQUENCE_2) > 30:
+        print("Arn sequences max size is 26")
+        exit(1)
 
     logger = log.Log(None, IS_VERBOSE, FILENAME_OUTPUT)
     arn1 = Arn(SEQUENCE_1)

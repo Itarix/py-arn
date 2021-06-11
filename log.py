@@ -1,10 +1,5 @@
 import logging
 
-
-def format_error(error_message, val1, val2, index):
-    return f'Error: {error_message:30} => sequence 1 : {val1:1} vs sequence 2 : {val2:1} ==> at position {index:10d}'
-
-
 class Log:
     logger: logging.Logger or None
     verbose: bool

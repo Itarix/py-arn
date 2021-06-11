@@ -3,7 +3,7 @@ import multiprocessing
 from math import factorial
 
 from arn import Arn, arn_to_str
-from log import format_error, Log
+from log import Log
 
 
 def compare_strict_arn(arn1: Arn, arn2: Arn, logger: Log):
@@ -16,16 +16,21 @@ def compare_strict_arn(arn1: Arn, arn2: Arn, logger: Log):
     nb_error = 0
     for i in range(0, size_sequence_1):
         if size_sequence_1 != size_sequence_2 and (i in (size_sequence_1, size_sequence_2)):
-            logger.warning(format_error("Bad size sequences", sequence_1[i], " ", i))
+            logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
+                           f'Error: {"Bad size sequences":30} => sequence val 1 : {sequence_1[i]:1} vs '
+                           f'sequence val 2 : {" ":1} ==> at position {i:10d}')
             nb_error = nb_error + 1
             break
 
         if sequence_1[i] != sequence_2[i]:
-            logger.warning(format_error("Bad value", sequence_1[i], sequence_2[i], i))
+            logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
+                           f'Error: {"Bad value":30} => sequence val 1 : {sequence_1[i]:1} vs '
+                           f'sequence val 2 : {sequence_2[i]:1} ==> at position {i:10d}')
             nb_error = nb_error + 1
 
     if nb_error > 0:
-        logger.warning(f'Number of errors while analyse sequences =>  {nb_error:1d}')
+        logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
+                       f'Number of errors while analyse sequences =>  {nb_error:1d}')
 
 
 def compare_line_arn(
@@ -54,28 +59,21 @@ def compare_line_arn(
         size_sequence_2 = len(copy_sequence_2)
 
         nb_error_imbricate = 0
-        logger.debug(
-            f'Analyse => sequence 1 : {copy_sequence_1:1} vs sequence 2 : {copy_sequence_2:1}'
-        )
         for i in range(0, size_sequence_2):
             if size_sequence_1 != size_sequence_2 and \
                     (i + 1 == size_sequence_1 or i + 1 == size_sequence_2):
-                logger.debug("end of sequences")
                 break
             if is_can_be_imbriquate(copy_sequence_1[i], copy_sequence_2[i]):
-                logger.warning(
-                    format_error(
-                        "Can be imbricate", copy_sequence_1[i], copy_sequence_2[i], i
-                    )
-                )
+                logger.warning(f'{copy_sequence_1:26} | {copy_sequence_2:26} ===> '
+                               f'Error: {"Bad value":30} => sequence val 1 : {copy_sequence_1[i]:1} vs '
+                               f'sequence val 2 : {copy_sequence_2[i]:1} ==> at position {i:10d}')
                 nb_error_imbricate = nb_error_imbricate + 1
 
         percent = nb_error_imbricate / min_size_sequence * 100
-        logger.info(
-            f'We have found : {nb_error_imbricate:1d} error. Percent {percent:1.02f}'
-        )
+
         if percent > error_percent:
-            logger.error(f'Bad combination : {percent:1.02f}%')
+            logger.error(f'{copy_sequence_1:26} | {copy_sequence_2:26} ===> '
+                         f'Bad combination : {percent:1.02f}%')
 
 
 def compare_loop_arn(
@@ -148,26 +146,22 @@ def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger,
 
     for k in range(0, len(sequence1)):
         seq_1_position_history.append(sequence1[k].original_position)
-        nb_error_imbricate = 0
+        nb_imbricate = 0
         seq_2_position_history = []
         for l in range(0, len(sequence2)):
             logger.debug(f'Process {seq1_str:26} | {seq2_str:26}')
             seq_2_position_history.append(sequence2[l].original_position)
-            # 1 : GCGB
+
             if is_can_be_imbriquate(sequence1[k].value, sequence2[l].value):
                 if max(seq_2_position_history) > sequence2[l].original_position or \
                         max(seq_1_position_history) > sequence1[k].original_position:
                     return
-                # logger.debug(
-                #     f'Can be imbricate : {sequence1[k].value:1} at {k:1d} position ===> {sequence2[l].value:1} at {l:1d} position'
-                # )
-                nb_error_imbricate = nb_error_imbricate + 1
+                nb_imbricate = nb_imbricate + 1
 
-        percent = nb_error_imbricate / min_size_sequence * 100
-        # logger.debug(f'We have found : {nb_error_imbricate:1d} error. Percent {percent:1.02f}')
+        percent = nb_imbricate / min_size_sequence * 100
 
-        # if percent > error_percent:
-        #     logger.debug(f'Bad combination : {percent:1.02f}%')
+        if percent > error_percent:
+            logger.debug(f'{seq1_str:26} | {seq2_str:26} ===> Bad combination : {percent:1.02f}%')
 
 
 def is_can_be_imbriquate(val1: str, val2: str):
