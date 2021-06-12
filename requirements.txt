@@ -8,3 +8,4 @@ pylint==2.8.3
 toml==0.10.2
 tqdm==4.61.0
 wrapt==1.12.1
+tqdm

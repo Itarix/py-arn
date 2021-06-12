@@ -1,32 +1,38 @@
 import itertools
 import multiprocessing
-from math import factorial
+
 
 from arn import Arn, arn_to_str
 from log import Log
 
 
 def compare_strict_arn(arn1: Arn, arn2: Arn, logger: Log):
+    """
+
+    :rtype: object
+    """
     sequence_1 = arn1.get_sequence_str()
     sequence_2 = arn2.get_sequence_str()
 
     size_sequence_1 = len(sequence_1)
     size_sequence_2 = len(sequence_2)
 
-    nb_error = 0
+    nb_error: int = 0
     for i in range(0, size_sequence_1):
         if size_sequence_1 != size_sequence_2 and (i in (size_sequence_1, size_sequence_2)):
             logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
-                           f'Error: {"Bad size sequences":30} => sequence val 1 : {sequence_1[i]:1} vs '
+                           f'Error: {"Bad size sequences":30} => '
+                           f'sequence val 1 : {sequence_1[i]:1} vs '
                            f'sequence val 2 : {" ":1} ==> at position {i:10d}')
-            nb_error = nb_error + 1
+            nb_error += 1
             break
 
         if sequence_1[i] != sequence_2[i]:
             logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
-                           f'Error: {"Bad value":30} => sequence val 1 : {sequence_1[i]:1} vs '
+                           f'Error: {"Bad value":30} =>'
+                           f'sequence val 1 : {sequence_1[i]:1} vs '
                            f'sequence val 2 : {sequence_2[i]:1} ==> at position {i:10d}')
-            nb_error = nb_error + 1
+            nb_error += 1
 
     if nb_error > 0:
         logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
@@ -38,6 +44,14 @@ def compare_line_arn(
         logger: Log, add_space_sequence_1: bool = False,
         error_percent: int = 30
 ):
+    """
+
+    :param arn1:
+    :param arn2:
+    :param logger:
+    :param add_space_sequence_1:
+    :param error_percent:
+    """
     copy_sequence_1 = arn1.get_sequence_str()
     copy_sequence_2 = arn2.get_sequence_str()
 
@@ -65,7 +79,8 @@ def compare_line_arn(
                 break
             if is_can_be_imbriquate(copy_sequence_1[i], copy_sequence_2[i]):
                 logger.warning(f'{copy_sequence_1:26} | {copy_sequence_2:26} ===> '
-                               f'Error: {"Bad value":30} => sequence val 1 : {copy_sequence_1[i]:1} vs '
+                               f'Error: {"Bad value":30} =>'
+                               f'sequence val 1 : {copy_sequence_1[i]:1} vs '
                                f'sequence val 2 : {copy_sequence_2[i]:1} ==> at position {i:10d}')
                 nb_error_imbricate = nb_error_imbricate + 1
 
@@ -79,17 +94,29 @@ def compare_line_arn(
 def compare_loop_arn(
         arn1: Arn, arn2: Arn,
         logger: Log, error_percent: int = 30,
-        nb_process=2
+        nb_process=1
 ):
+    """
+
+    :param arn1:
+    :param arn2:
+    :param logger:
+    :param error_percent:
+    :param nb_process:
+    """
     copy_sequence_1 = arn1.get_sequence_list()
     copy_sequence_2 = arn2.get_sequence_list()
 
     size_sequence1 = len(copy_sequence_1)
-    size_sequence2 = len(copy_sequence_1)
+    size_sequence2 = len(copy_sequence_2)
 
     min_size_sequence = size_sequence2
     if size_sequence2 > size_sequence1:
         min_size_sequence = size_sequence1
+
+    # facto_sequence_1 = math.factorial(size_sequence1)
+    # facto_sequence_2 = math.factorial(size_sequence2)
+    # facto_total = facto_sequence_1 * facto_sequence_2
 
     if nb_process == 1:
         for sequence1 in __permutations__(copy_sequence_1):
@@ -99,43 +126,71 @@ def compare_loop_arn(
                     min_size_sequence, logger, error_percent
                 )
     else:
-        nb_stock = 100000
+        nb_stock = 1000
         # print(factorial(size_sequence1))
         # 25 factorielle
         # 25 852 016 738 884 976 640 000
+        # UAA CACU GUCU
+        tab_sequence1 = []
         for sequence1 in __permutations__(copy_sequence_1):
-            tab_sequence2 = []
-            for sequence2 in __permutations__(copy_sequence_2):
-                tab_sequence2.append(sequence2)
-                if len(tab_sequence2) >= nb_stock:
-                    __compare_sequence_by_list_on_async__(
-                        sequence1, tab_sequence2,
-                        min_size_sequence, logger, error_percent,
-                        nb_process, nb_stock
-                    )
-                    tab_sequence2 = []
-            if len(tab_sequence2) > 0:
-                __compare_sequence_by_list_on_async__(
-                    sequence1, tab_sequence2,
-                    min_size_sequence, logger, error_percent,
-                    nb_process, nb_stock
-                )
+            tab_sequence1.append(sequence1)
 
+            if len(tab_sequence1) > nb_stock:
+                with multiprocessing.Pool(processes=nb_process, maxtasksperchild=nb_stock) as pool_process:
+                    for sequence1_process in tab_sequence1:
+                        for sequence2 in __permutations__(copy_sequence_2):
+                            pool_process.apply_async(
+                                _compare_loop_arn_sequence_,
+                                [sequence1_process, sequence2, min_size_sequence, logger, error_percent]
+                            )
+                    pool_process.close()
+                    pool_process.join()
+                tab_sequence1.clear()
 
-def __compare_sequence_by_list_on_async__(
-        sequence1, tab_sequence2,
-        min_size_sequence, logger,
-        error_percent, nb_process,
-        nb_stock
-):
-    with multiprocessing.Pool(processes=nb_process, maxtasksperchild=nb_stock) as pool_process:
-        for seq_tmp in tab_sequence2:
-            pool_process.apply_async(
-                _compare_loop_arn_sequence_,
-                [sequence1, seq_tmp, min_size_sequence, logger, error_percent]
-            )
-        pool_process.close()
-        pool_process.join()
+        if len(tab_sequence1) > 0:
+            with multiprocessing.Pool(processes=nb_process, maxtasksperchild=nb_stock) as pool_process:
+                for sequence1 in tab_sequence1:
+                    for sequence2 in __permutations__(copy_sequence_2):
+                        pool_process.apply_async(
+                            _compare_loop_arn_sequence_,
+                            [sequence1, sequence2, min_size_sequence, logger, error_percent]
+                        )
+                pool_process.close()
+                pool_process.join()
+                tab_sequence1.clear()
+    # for sequence1 in __permutations__(copy_sequence_1):
+        #     tab_sequence2 = []
+        #     for sequence2 in __permutations__(copy_sequence_2):
+        #         tab_sequence2.append(sequence2)
+        #         if len(tab_sequence2) >= nb_stock:
+        #             __compare_sequence_by_list_on_async__(
+        #                 sequence1, tab_sequence2,
+        #                 min_size_sequence, logger, error_percent,
+        #                 nb_process, nb_stock
+        #             )
+        #             tab_sequence2 = []
+        #     if len(tab_sequence2) > 0:
+        #         __compare_sequence_by_list_on_async__(
+        #             sequence1, tab_sequence2,
+        #             min_size_sequence, logger, error_percent,
+        #             nb_process, nb_stock
+        #         )
+
+#
+# def __compare_sequence_by_list_on_async__(
+#         sequence1, tab_sequence2,
+#         min_size_sequence, logger,
+#         error_percent, nb_process,
+#         nb_stock
+# ):
+#     with multiprocessing.Pool(processes=nb_process, maxtasksperchild=nb_stock) as pool_process:
+#         for seq_tmp in tab_sequence2:
+#             pool_process.apply_async(
+#                 _compare_loop_arn_sequence_,
+#                 [sequence1, seq_tmp, min_size_sequence, logger, error_percent]
+#             )
+#         pool_process.close()
+#         pool_process.join()
 
 
 def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger, error_percent):
@@ -158,13 +213,19 @@ def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger,
                     return
                 nb_imbricate = nb_imbricate + 1
 
-        percent = nb_imbricate / min_size_sequence * 100
+        percent = (nb_imbricate / min_size_sequence) * 100
 
         if percent > error_percent:
             logger.debug(f'{seq1_str:26} | {seq2_str:26} ===> Bad combination : {percent:1.02f}%')
 
 
 def is_can_be_imbriquate(val1: str, val2: str):
+    """
+
+    :param val1:
+    :param val2:
+    :return:
+    """
     if val1 == "A" and val2 == "U":
         is_imbricate = True
     elif val1 == "C" and val2 == "G":
@@ -174,5 +235,5 @@ def is_can_be_imbriquate(val1: str, val2: str):
     return is_imbricate
 
 
-def __permutations__(list_to_permute: list):
+def __permutations__(list_to_permute: list) -> object:
     return itertools.permutations(list_to_permute, len(list_to_permute))

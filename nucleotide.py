@@ -1,5 +1,13 @@
 class Nucleotide:
+    """
+        Class Nucleotide
+    """
+
     def __init__(self, position: int, value: str):
+        """
+
+        :rtype: object
+        """
         self.original_position = position
         self.value = value
 

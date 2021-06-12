@@ -1,6 +1,10 @@
 import logging
 
+
 class Log:
+    """
+    Class Log
+    """
     logger: logging.Logger or None
     verbose: bool
 
@@ -12,24 +16,40 @@ class Log:
         self.logger = logger
 
     def debug(self, message: str):
+        """
+
+        :param message:
+        """
         if self.verbose:
             print(message)
         if self.logger is not None:
             self.logger.debug(message)
 
     def info(self, message: str):
+        """
+
+        :param message:
+        """
         if self.verbose:
             print(message)
         if self.logger is not None:
             self.logger.info(message)
 
     def warning(self, message: str):
+        """
+
+        :param message:
+        """
         if self.verbose:
             print(message)
         if self.logger is not None:
             self.logger.warning(message)
 
     def error(self, message: str):
+        """
+
+        :param message:
+        """
         if self.verbose:
             print(message)
         if self.logger is not None:
