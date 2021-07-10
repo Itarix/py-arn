@@ -1,10 +1,41 @@
-import datetime
 import getopt
 import sys
-
 import log
 from arn import Arn
-from compare_arn import compare_loop_arn
+from log import Log
+
+
+def compare_strict_arn(arn1: Arn, arn2: Arn, logger: Log):
+    """
+
+    :rtype: object
+    """
+    sequence_1 = arn1.get_sequence_str()
+    sequence_2 = arn2.get_sequence_str()
+
+    size_sequence_1 = len(sequence_1)
+    size_sequence_2 = len(sequence_2)
+
+    nb_error: int = 0
+    for i in range(0, size_sequence_1):
+        if size_sequence_1 != size_sequence_2 and (i in (size_sequence_1, size_sequence_2)):
+            # logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
+            #                f'Error: {"Bad size sequences":30} => '
+            #                f'sequence val 1 : {sequence_1[i]:1} vs '
+            #                f'sequence val 2 : {" ":1} ==> at position {i:10d}')
+            nb_error += 1
+            break
+
+        if sequence_1[i] != sequence_2[i]:
+            # logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
+            #                f'Error: {"Bad value":30} =>'
+            #                f'sequence val 1 : {sequence_1[i]:1} vs '
+            #                f'sequence val 2 : {sequence_2[i]:1} ==> at position {i:10d}')
+            nb_error += 1
+
+    if nb_error > 0:
+        logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
+                       f'Number of errors while analyse sequences => nb error {nb_error:2d}')
 
 
 def usage():
@@ -22,15 +53,6 @@ def usage():
             Second Sequence to be compare. 
             Example = --sequence1=UCGA
             Default value is : UAACACUGUCUGGUAACGAUGU
-        --percent
-            Variable of percentage of accepted comparison. 
-            Only used for the line comparison
-            Example = --percent=50
-            Default value is : 30
-        --decalSeq1
-            If Not Provided : it will add space to sequence 1.
-            If yes: it will add space to sequence 2.
-            Example = --decalSeq1
         --verbose
             If provided ; it will print in standard output logs.
             If not : it will not print logs.
@@ -39,33 +61,26 @@ def usage():
             Specify the file where the file of result will be create.
             Warning. The output file can be huge. At least 60GB
             Example = --output=/tmp/resultFile.txt
-        --nbProcess
-            Specify the number of process used for treatment which need processing long time.
-            Default : 1
-            Example = --nbProcess=2
 """
     print(help_text)
 
 
 if __name__ == "__main__":
     # execute only if run as a script
-    ERROR_PERCENT = 30
     SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCGB"
     SEQUENCE_2 = "UAACACUGUCUGGUAACGAUGQ"
     # jf true so it will add space before sequence 2
     # If False so it will add space before sequence 1
-    ADD_SPACE_SEQUENCE_1 = True
     FILENAME_OUTPUT = ""
     IS_VERBOSE = False
-    NB_PROCESS = 1
 
     try:
         opts, argv = getopt.getopt(
             sys.argv[1:],
             "h",
             [
-                'help', 'decalSeq1', 'verbose',
-                'sequence1=', 'sequence2=', 'percent=', 'output=', 'nbProcess=']
+                'help', 'verbose',
+                'sequence1=', 'sequence2=', 'output=']
         )
     except getopt.GetoptError as err:
         usage()
@@ -80,44 +95,21 @@ if __name__ == "__main__":
             SEQUENCE_1 = v
         if k == '--sequence2':
             SEQUENCE_2 = v
-        if k == '--percent':
-            ERROR_PERCENT = v
         if k == '--output':
             FILENAME_OUTPUT = v
-        if k == '--decalSeq1':
-            ADD_SPACE_SEQUENCE_1 = False
         if k == '--verbose':
             IS_VERBOSE = True
-        if k == '--nbProcess':
-            NB_PROCESS = int(v)
 
     if len(SEQUENCE_1) > 30 or len(SEQUENCE_2) > 30:
-        print("Arn sequences max size is 26")
+        print("Arn sequences max size is 30")
         exit(1)
 
     logger = log.Log(None, IS_VERBOSE, FILENAME_OUTPUT)
     arn1 = Arn(SEQUENCE_1)
     arn2 = Arn(SEQUENCE_2)
 
-    dateDebut = datetime.datetime.now()
-
-    # logger.debug("-------------------------------------")
-    # logger.debug("Check sequences Start.")
-    # compare_strict_arn(arn1, arn2, logger)
-    # logger.debug("Check sequences End.")
-    # logger.debug("-------------------------------------")
-
-    # logger.debug("-------------------------------------")
-    # logger.debug("Check sequences with linear method Start.")
-    # compare_line_arn(arn1, arn2, logger, ADD_SPACE_SEQUENCE_1, ERROR_PERCENT)
-    # logger.debug("Check sequences with linear method End.")
-    # logger.debug("-------------------------------------")
-
     logger.debug("-------------------------------------")
-    logger.debug("Check sequences Loop Method Start.")
-    compare_loop_arn(arn1, arn2, logger, ERROR_PERCENT, NB_PROCESS)
-    logger.debug("Check sequences Loop Method End.")
+    logger.debug("Check sequences Start.")
+    compare_strict_arn(arn1, arn2, logger)
+    logger.debug("Check sequences End.")
     logger.debug("-------------------------------------")
-
-    print(dateDebut)
-    print(datetime.datetime.now())
