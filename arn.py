@@ -17,7 +17,7 @@ class Arn:
             tmp.append(nucleotide.Nucleotide(i, self.sequence_arn_str[i]))
         self.sequence_arn_list = tmp
 
-    def get_sequence_list(self) -> list:
+    def get_list_nucleotides(self) -> list:
         """
 
         :return:

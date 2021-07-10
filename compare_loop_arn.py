@@ -22,8 +22,8 @@ def compare_loop_arn(
     :param error_percent:
     :param nb_process:
     """
-    copy_sequence_1 = arn1.get_sequence_list()
-    copy_sequence_2 = arn2.get_sequence_list()
+    copy_sequence_1 = arn1.get_list_nucleotides()
+    copy_sequence_2 = arn2.get_list_nucleotides()
 
     size_sequence1 = len(copy_sequence_1)
     size_sequence2 = len(copy_sequence_2)
