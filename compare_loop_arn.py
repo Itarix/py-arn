@@ -98,7 +98,7 @@ def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger,
                            f'number imbricate {nb_imbricate:2d} : error {percent:1.02f}%')
 
 
-def __permutations__(list_to_permute: list) -> object:
+def __permutations__(list_to_permute: list):
     return itertools.permutations(list_to_permute, len(list_to_permute))
 
 
