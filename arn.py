@@ -17,6 +17,13 @@ class Arn:
             tmp.append(nucleotide.Nucleotide(i, self.sequence_arn_str[i]))
         self.sequence_arn_list = tmp
 
+    def get_size(self) -> int:
+        """
+
+        :return: int
+        """
+        return len(self.sequence_arn_str)
+
     def get_list_nucleotides(self) -> list:
         """
 
@@ -41,4 +48,16 @@ def arn_to_str(sequence: list) -> str:
     tmp = ""
     for i in range(0, len(sequence)):
         tmp = tmp + sequence[i].value
+    return tmp
+
+
+def arn_to_str_with_position(sequence: list) -> str:
+    """
+
+    :param sequence:
+    :rtype: object
+    """
+    tmp = ""
+    for i in range(0, len(sequence)):
+        tmp = tmp + sequence[i].value + str(sequence[i].original_position)
     return tmp

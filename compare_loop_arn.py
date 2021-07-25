@@ -6,21 +6,48 @@ import sys
 import log
 from arn import Arn, arn_to_str
 from log import Log
-from nucleotide import is_can_be_imbriquate
+from nucleotide import can_pair
 
 
-def compare_loop_arn(
+def compare_loop_one_arn(
+        arn1: Arn, arn2: Arn,
+        logger: Log, error_percent: int = 30
+):
+    """
+
+    :param arn1: arn1
+    :param arn2: arn2
+    :param logger: logger
+    :param error_percent:
+    :param nb_process: number of process will be use for this programm
+    """
+    copy_sequence_1 = arn1.get_list_nucleotides()
+    copy_sequence_2 = arn2.get_list_nucleotides()
+
+    size_sequence1 = len(copy_sequence_1)
+    size_sequence2 = len(copy_sequence_2)
+
+    min_size_sequence = size_sequence2
+    if size_sequence2 > size_sequence1:
+        min_size_sequence = size_sequence1
+
+    _compare_loop_arn_sequence_(
+        copy_sequence_1, copy_sequence_2,
+        min_size_sequence, logger, error_percent)
+
+
+def compare_loop_arn_multiple(
         arn1: Arn, arn2: Arn,
         logger: Log, error_percent: int = 30,
         nb_process=1
 ):
     """
 
-    :param arn1:
-    :param arn2:
-    :param logger:
+    :param arn1: arn1
+    :param arn2: arn2
+    :param logger: logger
     :param error_percent:
-    :param nb_process:
+    :param nb_process: number of process will be use for this programm
     """
     copy_sequence_1 = arn1.get_list_nucleotides()
     copy_sequence_2 = arn2.get_list_nucleotides()
@@ -34,11 +61,17 @@ def compare_loop_arn(
 
     if nb_process == 1:
         for sequence1 in __permutations__(copy_sequence_1):
+            exclude_begin = None
             for sequence2 in __permutations__(copy_sequence_2):
-                _compare_loop_arn_sequence_(
+                sequence2_str = arn_to_str(sequence2)
+                if exclude_begin is not None and sequence2_str.startswith(exclude_begin):
+                    continue
+                s = _compare_loop_arn_sequence_(
                     sequence1, sequence2,
                     min_size_sequence, logger, error_percent
                 )
+                if s != 0:
+                    exclude_begin = s
     else:
         nb_stock = 1000
 
@@ -85,17 +118,18 @@ def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger,
             # logger.debug(f'Process {seq1_str:26} | {seq2_str:26}')
             seq_2_position_history.append(sequence2[l].original_position)
 
-            if is_can_be_imbriquate(sequence1[k].value, sequence2[l].value):
+            if can_pair(sequence1[k].value, sequence2[l].value):
                 if max(seq_2_position_history) > sequence2[l].original_position or \
                         max(seq_1_position_history) > sequence1[k].original_position:
-                    return
+                    return seq2_str[0:max(seq_2_position_history)]
                 nb_imbricate = nb_imbricate + 1
 
         percent = (nb_imbricate / min_size_sequence) * 100
 
         if percent > error_percent:
-            logger.warning(f'{seq1_str:26} | {seq2_str:26} ===> ' +
+            logger.warning(f'{seq1_str:26} | {seq2_str:26} | ' +
                            f'number imbricate {nb_imbricate:2d} : error {percent:1.02f}%')
+    return 0
 
 
 def __permutations__(list_to_permute: list):
@@ -112,7 +146,7 @@ def usage():
         --sequence1
             First Sequence to be compare.
             Example = --sequence1=UCGA
-            Default value is : UCGUACCGUGAGUAAUAAUGCGB
+            Default value is : UCGUACCGUGAGUAAUAAUGCG
         --sequence2
             Second Sequence to be compare. 
             Example = --sequence1=UCGA
@@ -123,13 +157,17 @@ def usage():
             Example = --percent=50
             Default value is : 30
         --verbose
-            If provided ; it will print in standard output logs.
+            If provided : it will print in standard output logs.
             If not : it will not print logs.
             Example = --verbose
-        --output
-            Specify the file where the file of result will be create.
-            Warning. The output file can be huge. At least 60GB
-            Example = --output=/tmp/resultFile.txt
+        --all_permutations
+            If provided : it will generate all permutations possible and compare loop.
+            If not : juste compare two arn provided
+            WARNING! It can be dangerous for your server to use this argument because can do memory leak.
+            Example = --all_permutations
+        --log_output
+            Specify the path where the log file will be create.
+            Example = --output=/tmp/log.txt
         --nbProcess
             Specify the number of process used for treatment which need processing long time.
             Default : 1
@@ -141,21 +179,22 @@ def usage():
 if __name__ == "__main__":
     # execute only if run as a script
     ERROR_PERCENT = 30
-    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCGB"
-    SEQUENCE_2 = "UAACACUGUCUGGUAACGAUGQ"
+    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCG"
+    SEQUENCE_2 = "UAACACUGUCUGGUAACGAUGU"
     # jf true so it will add space before sequence 2
     # If False so it will add space before sequence 1
-    FILENAME_OUTPUT = ""
+    PATH_LOG = ""
     IS_VERBOSE = False
     NB_PROCESS = 1
+    ALL_PERMUTATIONS = False
 
     try:
         opts, argv = getopt.getopt(
             sys.argv[1:],
             "h",
             [
-                'help', 'verbose',
-                'sequence1=', 'sequence2=', 'percent=', 'output=', 'nbProcess=']
+                'help', 'verbose', 'all_permutations',
+                'sequence1=', 'sequence2=', 'percent=', 'log_output=', 'nbProcess=']
         )
     except getopt.GetoptError as err:
         usage()
@@ -172,10 +211,12 @@ if __name__ == "__main__":
             SEQUENCE_2 = v
         if k == '--percent':
             ERROR_PERCENT = v
-        if k == '--output':
-            FILENAME_OUTPUT = v
+        if k == '--log_output':
+            PATH_LOG = v
         if k == '--verbose':
             IS_VERBOSE = True
+        if k == '--all_permutations':
+            ALL_PERMUTATIONS = True
         if k == '--nbProcess':
             NB_PROCESS = int(v)
 
@@ -183,7 +224,7 @@ if __name__ == "__main__":
         print("Arn sequences max size is 30")
         exit(1)
 
-    logger = log.Log(None, IS_VERBOSE, FILENAME_OUTPUT)
+    logger = log.Log(None, IS_VERBOSE, PATH_LOG)
     arn1 = Arn(SEQUENCE_1)
     arn2 = Arn(SEQUENCE_2)
 
@@ -191,7 +232,10 @@ if __name__ == "__main__":
 
     logger.debug("-------------------------------------")
     logger.debug("Check sequences Loop Method Start.")
-    compare_loop_arn(arn1, arn2, logger, ERROR_PERCENT, NB_PROCESS)
+    if ALL_PERMUTATIONS:
+        compare_loop_arn_multiple(arn1, arn2, logger, ERROR_PERCENT, NB_PROCESS)
+    else:
+        compare_loop_one_arn(arn1, arn2, logger, ERROR_PERCENT)
     logger.debug("Check sequences Loop Method End.")
     logger.debug("-------------------------------------")
 

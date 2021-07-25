@@ -11,7 +11,7 @@ class Log:
     def __init__(self, logger: logging.Logger = None, verbose: bool = False, filename: str = ""):
         self.verbose = verbose
         if logger is None:
-            logging.basicConfig(filename=filename, filemode='w', level=logging.INFO)
+            logging.basicConfig(filename=filename, filemode='w', level=logging.DEBUG)
             logger = logging.getLogger(__name__)
         self.logger = logger
 
