@@ -1,0 +1,131 @@
+{% extends 'html/base.html' %}
+
+{% block content %}
+
+<div class="container m-3">
+    <div class="row m-3">
+        <div class="col">
+            <label class="form-label" for="inputArn1">First Arn</label>
+        </div>
+        <div class="col">
+            <input class="form-control" id="inputArn1" placeholder="Put your first arn" type="text">
+        </div>
+    </div>
+    <div class="row m-3">
+        <div class="col">
+            <label class="form-label" for="inputArn2">Second arn</label>
+        </div>
+        <div class="col">
+            <input class="form-control" id="inputArn2" placeholder="Put your second arn" type="text">
+        </div>
+    </div>
+
+    <div class="row m-3">
+        <div class="col">
+            <label class="form-label" for="inputPercentPairing"> Percent Pairing
+            </label>
+        </div>
+        <div class="col">
+            <input class="form-control" id="inputPercentPairing" max="100" min="0" placeholder="Put your percent here" type="number"
+                   value="30">
+        </div>
+    </div>
+
+    <div class="row m-3">
+        <div class="form-check">
+            <input checked class="form-check-input" id="flexRadioAddSpaceArn1" name="flexRadioAddSpace"
+                   type="radio">
+            <label class="form-check-label" for="flexRadioAddSpaceArn1"> Add space on Arn 1
+            </label>
+        </div>
+    </div>
+
+    <div class="row m-3">
+        <div class="form-check">
+            <input class="form-check-input" id="flexRadioAddSpaceArn2" name="flexRadioAddSpace" type="radio">
+            <label class="form-check-label" for="flexRadioAddSpaceArn2"> Add space on Arn 2
+            </label>
+        </div>
+    </div>
+
+
+    <div class="row m-3">
+        <div class="col">
+            <button class="btn btn-primary" id="buttonCompare" type="button">Compare</button>
+        </div>
+        <div class="col">
+            <button class="btn btn-danger" id="buttonClear" type="button">Clear</button>
+        </div>
+    </div>
+    <div class="row m-3">
+        <p class="text-danger" id="messageButton"></p>
+    </div>
+
+    <p class="m-3">Infos Arn :</p>
+
+    <div class="container row border-secondary m-3">
+        <div class="row">
+            <div class="col border border-secondary text-center">
+                <p>Infos</p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p>Arn 1</p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p>Arn 2</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col border border-secondary text-center">
+                <p>Sequence</p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p id="textSequenceArn1"></p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p id="textSequenceArn2"></p>
+            </div>
+        </div>
+    </div>
+
+    <p class="m-3">Infos Comparison :</p>
+
+    <div class="container row border-secondary m-3">
+        <div class="row">
+            <div class="col border border-secondary text-center">
+                <p>Percent pairing</p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p>Add space to sequence 1</p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p>Add space to sequence 2</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col border border-secondary text-center">
+                <p id="textPercentPair"></p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p id="textAddSpaceSequence1"></p>
+            </div>
+            <div class="col border border-secondary text-center">
+                <p id="textAddSpaceSequence2"></p>
+            </div>
+        </div>
+    </div>
+
+    <p class="m-3">Infos Can Pair :</p>
+    <div class="container row border-secondary m-3" id="divInfosCanPair">
+    </div>
+
+    <p class="m-3">Infos Percent pair higher than limit :</p>
+    <div class="container row border-secondary m-3" id="divInfosHigherPercentPair">
+    </div>
+
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="/js/comparison_complementary.js"></script>
+{% endblock %}

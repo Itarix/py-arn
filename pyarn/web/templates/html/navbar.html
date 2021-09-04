@@ -1,0 +1,51 @@
+<div class="sticky-top d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px;">
+    <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none" href="/">
+        <span class="fs-4">Py-Arn</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a
+            {% if active_page == "index.html" %}
+                aria-current="page" class="nav-link active"
+            {% else %}
+                class="nav-link text-white"
+            {% endif %}
+                href="/html/page/index.html"> Home
+            </a>
+        </li>
+        <li>
+            <a
+            {% if active_page == "position.html" %}
+                aria-current="page" class="nav-link active"
+            {% else %}
+                class="nav-link text-white"
+            {% endif %}
+                href="/html/page/position.html"> Compare Position
+            </a>
+        </li>
+        <li>
+            <a
+            {% if active_page == "complementary.html" %}
+                aria-current="page" class="nav-link active"
+            {% else %}
+                class="nav-link text-white"
+            {% endif %}
+            href="/html/page/complementary.html"> Compare Complementary
+            </a>
+        </li>
+        <li>
+            <a
+            {% if active_page == "loop_one.html" %}
+                aria-current="page" class="nav-link active"
+            {% else %}
+                class="nav-link text-white"
+            {% endif %}
+             href="/html/page/loop_one.html"> Compare Loop for one generation
+            </a>
+        </li>
+    </ul>
+
+    <hr>
+    <a href="https://gitlab.com/Itarix/py-arn" tabindex="-1">Source code of project</a>
+</div>

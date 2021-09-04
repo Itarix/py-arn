@@ -1,14 +1,18 @@
 import getopt
+import os
 import sys
+
+val = os.path.dirname(sys.path[0])
+sys.path.append(str(val).split("pyarn")[0])
 from datetime import datetime
 
-import log
-from arn import Arn, arn_to_str_with_position
-from compare_loop_arn import _compare_loop_arn_sequence_, __permutations__
+from loop_arn import __permutations__
+from pyarn.log import log
+from pyarn.models.arn import Arn, arn_to_str_with_position
 
 
 def generate_all_permutations(
-        arn1: Arn, filename: str, logger: log
+        arn1: Arn, filename: str, logger: log.Log
 ) -> int:
     """
 

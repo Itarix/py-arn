@@ -1,12 +1,15 @@
 import getopt
+import os
 import sys
 from datetime import datetime
 
-import log
-from arn import Arn
+val = os.path.dirname(sys.path[0])
+sys.path.append(str(val).split("pyarn")[0])
+from pyarn.log import log
+from pyarn.models.arn import Arn
 
 
-def compare_position_arn(arn1: Arn, arn2: Arn) -> object:
+def compare_position_arn(arn1: Arn, arn2: Arn, logger: log.Log = None) -> dict:
     """
 
     :rtype: int
@@ -17,26 +20,36 @@ def compare_position_arn(arn1: Arn, arn2: Arn) -> object:
     size_sequence_1 = len(sequence_1)
     size_sequence_2 = len(sequence_2)
 
+    data_bad_sizes = []
+    data_bad_values = []
     nb_mismatch: int = 0
     for i in range(0, size_sequence_1):
         if size_sequence_1 != size_sequence_2 and (i in (size_sequence_1, size_sequence_2)):
-            # logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
-            #                f'Error: {"Bad size sequences":30} => '
-            #                f'sequence val 1 : {sequence_1[i]:1} vs '
-            #                f'sequence val 2 : {" ":1} ==> at position {i:10d}')
+            message = f'Nucleotide from Arn 1: {sequence_1[i]:1} vs Nucleotide from Arn 2 : {" ":1} ==> at position {i:10d}'
+            if logger is not None:
+                logger.warning(message)
+            data_bad_sizes.append(message)
             nb_mismatch += 1
             break
 
         if sequence_1[i] != sequence_2[i]:
-            # logger.warning(f'{sequence_1:26} | {sequence_2:26} ===> '
-            #                f'Error: {"Bad value":30} =>'
-            #                f'sequence val 1 : {sequence_1[i]:1} vs '
-            #                f'sequence val 2 : {sequence_2[i]:1} ==> at position {i:10d}')
+            message = f'Nucleotide from Arn 1 : {sequence_1[i]:1} vs Nucleotide from Arn 2 : {sequence_2[i]:1} ==> at position {i:10d}'
+            if logger is not None:
+                logger.warning(message)
+            data_bad_values.append(message)
             nb_mismatch += 1
-    if nb_mismatch > 0:
-        logger.warning(f'{sequence_1:26} | {sequence_2:26} | '
-                       f'Number of mismatch while analyse sequences => nb error {nb_mismatch:2d}')
-    return nb_mismatch
+
+    data = {
+        "arn1": sequence_1,
+        "size_arn1": size_sequence_1,
+        "size_arn2": size_sequence_2,
+        "arn2": sequence_2,
+        "bad_sizes": data_bad_sizes,
+        "bad_values": data_bad_values,
+        "nb_mismatch": nb_mismatch
+    }
+    return data
+
 
 def usage():
     help_text = """This script is used to compare positions of two arns
@@ -112,7 +125,12 @@ if __name__ == "__main__":
     logger.debug("date start : " + str(dateDebut))
     logger.debug("-------------------------------------")
     logger.debug("Check sequences Start.")
-    compare_position_arn(arn1, arn2)
+    data = compare_position_arn(arn1, arn2)
+    logger.info(data['arn1'])
+    logger.info(data['arn2'])
+    logger.info(data['bad_sizes'])
+    logger.info(data['bad_values'])
+    logger.info(data['nb_mismatch'])
     logger.debug("Check sequences End.")
     logger.debug("-------------------------------------")
     logger.debug("date end : " + str(datetime.now()))

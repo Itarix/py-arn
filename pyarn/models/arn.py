@@ -1,10 +1,13 @@
-import nucleotide
+"""arn module for arn class."""
+
+from . import nucleotide
 
 
 class Arn:
     """
         Class Arn
     """
+
     def __init__(self, sequence: str) -> object:
         """
 
@@ -13,8 +16,8 @@ class Arn:
         self.sequence_arn_str = sequence
 
         tmp = []
-        for i in range(0, len(self.sequence_arn_str)):
-            tmp.append(nucleotide.Nucleotide(i, self.sequence_arn_str[i]))
+        for position, val in enumerate(self.sequence_arn_str):
+            tmp.append(nucleotide.Nucleotide(position, val))
         self.sequence_arn_list = tmp
 
     def get_size(self) -> int:
@@ -46,8 +49,8 @@ def arn_to_str(sequence: list) -> str:
     :rtype: object
     """
     tmp = ""
-    for i in range(0, len(sequence)):
-        tmp = tmp + sequence[i].value
+    for i in sequence:
+        tmp = tmp + i.value
     return tmp
 
 
@@ -58,6 +61,6 @@ def arn_to_str_with_position(sequence: list) -> str:
     :rtype: object
     """
     tmp = ""
-    for i in range(0, len(sequence)):
-        tmp = tmp + sequence[i].value + str(sequence[i].original_position)
+    for position, val in enumerate(sequence):
+        tmp = tmp + val + str(position)
     return tmp
