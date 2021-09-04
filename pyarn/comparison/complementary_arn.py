@@ -1,17 +1,19 @@
+import getopt
+import os
+import sys
 from datetime import datetime
 
-import log
-import getopt
-import sys
+val = os.path.dirname(sys.path[0])
+sys.path.append(str(val).split("pyarn")[0])
 
-from nucleotide import can_pair
-from arn import Arn
-from log import Log
+from pyarn.log import log
+from pyarn.models.arn import Arn
+from pyarn.models.nucleotide import can_pair
 
 
 def compare_complementary_arn(
         arn1: Arn, arn2: Arn,
-        logger: Log, add_space_sequence_1: bool = False,
+        logger: log.Log = None, add_space_sequence_1: bool = False,
         pairing_percent: int = 30
 ):
     """
@@ -32,6 +34,8 @@ def compare_complementary_arn(
     if original_size_sequence_2 > original_size_sequence_1:
         min_size_sequence = original_size_sequence_1
 
+    info_percent_pair_all = []
+    info_can_pair_all = []
     for j in range(0, original_size_sequence_1):
         if j > 0:
             if add_space_sequence_1:
@@ -42,23 +46,38 @@ def compare_complementary_arn(
         size_sequence_1 = len(copy_sequence_1)
         size_sequence_2 = len(copy_sequence_2)
 
+        tmp_sequence_1 = copy_sequence_1.replace(" ", "-")
+        tmp_sequence_2 = copy_sequence_2.replace(" ", "-")
         nb_pair = 0
         for i in range(0, size_sequence_2):
             if size_sequence_1 != size_sequence_2 and \
-                    (i + 1 == size_sequence_1 or i + 1 == size_sequence_2):
+                    (i == size_sequence_1 or i == size_sequence_2):
                 break
             if can_pair(copy_sequence_1[i], copy_sequence_2[i]):
-                # logger.warning(f'{copy_sequence_1:26} | {copy_sequence_2:26} ===> '
-                #                f'Error: {"Bad value":30} =>'
-                #                f'sequence val 1 : {copy_sequence_1[i]:1} vs '
-                #                f'sequence val 2 : {copy_sequence_2[i]:1} ==> at position {i:10d}')
+                message = f'{tmp_sequence_1:26} | {tmp_sequence_2:26} ===> Nucleotide 1 : {copy_sequence_1[i]:1} can pair with Nucleotide 2 : {copy_sequence_2[i]:1} ==> at position {i:10d}'
+                if logger is not None:
+                    logger.warning(message)
+                info_can_pair_all.append(message)
                 nb_pair = nb_pair + 1
 
         percent = nb_pair / min_size_sequence * 100
 
         if percent > pairing_percent:
-            logger.error(f'{copy_sequence_1:26} | {copy_sequence_2:26} | '
-                         f'number imbricate {nb_pair:2d} : error {percent:1.02f}%')
+            message = f'{tmp_sequence_1:26} | {tmp_sequence_2:26} | number imbricate {nb_pair:2d} : pair {percent:1.02f}%'
+            if logger is not None:
+                logger.warning(message)
+            info_percent_pair_all.append(message)
+
+    data = {
+        "arn1": copy_sequence_1,
+        "arn2": copy_sequence_2,
+        "percent_pair": pairing_percent,
+        "add_space_sequence_1": add_space_sequence_1,
+        "add_space_sequence_2": not add_space_sequence_1,
+        "info_percent_pairing": info_percent_pair_all,
+        "info_can_pair": info_can_pair_all
+    }
+    return data
 
 
 def usage():
@@ -149,9 +168,15 @@ if __name__ == "__main__":
     logger.debug("date start : " + str(dateDebut))
     logger.debug("-------------------------------------")
     logger.debug("Check sequences with linear method Start.")
-    compare_complementary_arn(arn1, arn2, logger, ADD_SPACE_SEQUENCE_1, PAIRING_PERCENT)
+    data = compare_complementary_arn(arn1, arn2, logger, ADD_SPACE_SEQUENCE_1, PAIRING_PERCENT)
+    logger.info(data['arn1'])
+    logger.info(data['arn2'])
+    logger.info(data['percent_pair'])
+    logger.info(data['add_space_sequence_1'])
+    logger.info(data['add_space_sequence_2'])
+    logger.info(data['info_percent_pairing'])
+    logger.info(data['info_can_pair'])
     logger.debug("Check sequences with linear method End.")
     logger.debug("-------------------------------------")
     logger.debug("date end : " + str(datetime.now()))
     logger.debug("process time : " + str(datetime.now() - dateDebut))
-

@@ -1,17 +1,21 @@
 import datetime
+import getopt
 import itertools
 import multiprocessing
-import getopt
+import os
 import sys
-import log
-from arn import Arn, arn_to_str
-from log import Log
-from nucleotide import can_pair
+
+val = os.path.dirname(sys.path[0])
+sys.path.append(str(val).split("pyarn")[0])
+
+from pyarn.log import log
+from pyarn.models.arn import Arn, arn_to_str
+from pyarn.models.nucleotide import can_pair
 
 
 def compare_loop_one_arn(
         arn1: Arn, arn2: Arn,
-        logger: Log, error_percent: int = 30
+        logger: log.Log = None, error_percent: int = 30
 ):
     """
 
@@ -19,26 +23,23 @@ def compare_loop_one_arn(
     :param arn2: arn2
     :param logger: logger
     :param error_percent:
-    :param nb_process: number of process will be use for this programm
     """
-    copy_sequence_1 = arn1.get_list_nucleotides()
-    copy_sequence_2 = arn2.get_list_nucleotides()
+    sequence1 = arn1.get_list_nucleotides()
+    sequence2 = arn2.get_list_nucleotides()
 
-    size_sequence1 = len(copy_sequence_1)
-    size_sequence2 = len(copy_sequence_2)
+    size_sequence1 = len(sequence1)
+    size_sequence2 = len(sequence2)
 
     min_size_sequence = size_sequence2
     if size_sequence2 > size_sequence1:
         min_size_sequence = size_sequence1
 
-    _compare_loop_arn_sequence_(
-        copy_sequence_1, copy_sequence_2,
-        min_size_sequence, logger, error_percent)
+    return _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger, error_percent)
 
 
 def compare_loop_arn_multiple(
         arn1: Arn, arn2: Arn,
-        logger: Log, error_percent: int = 30,
+        logger: log.Log, error_percent: int = 30,
         nb_process=1
 ):
     """
@@ -70,8 +71,8 @@ def compare_loop_arn_multiple(
                     sequence1, sequence2,
                     min_size_sequence, logger, error_percent
                 )
-                if s != 0:
-                    exclude_begin = s
+                if s["begin_break_loop"] != "":
+                    exclude_begin = s["begin_break_loop"]
     else:
         nb_stock = 1000
 
@@ -105,31 +106,41 @@ def compare_loop_arn_multiple(
 
 
 def _compare_loop_arn_sequence_(sequence1, sequence2, min_size_sequence, logger, error_percent):
-    seq_1_position_history = []
-
     seq1_str = arn_to_str(sequence1)
     seq2_str = arn_to_str(sequence2)
 
-    for k in range(0, len(sequence1)):
-        seq_1_position_history.append(sequence1[k].original_position)
-        nb_imbricate = 0
-        seq_2_position_history = []
-        for l in range(0, len(sequence2)):
-            # logger.debug(f'Process {seq1_str:26} | {seq2_str:26}')
-            seq_2_position_history.append(sequence2[l].original_position)
+    nb_imbricate = 0
+    can_loop = True
+    seq_1_position_history = []
+    seq_2_position_history = []
+    begin_break_loop = ""
+    for i in range(0, min_size_sequence):
+        seq_2_position_history.append(sequence2[i].original_position)
+        seq_1_position_history.append(sequence1[i].original_position)
+        if can_pair(sequence1[i].value, sequence2[i].value):
+            if max(seq_2_position_history) > sequence2[i].original_position or \
+                    max(seq_1_position_history) > sequence1[i].original_position:
+                nb_imbricate = 0
+                can_loop = False
+                begin_break_loop = seq2_str[0:max(seq_2_position_history)]
+                break
+            nb_imbricate = nb_imbricate + 1
 
-            if can_pair(sequence1[k].value, sequence2[l].value):
-                if max(seq_2_position_history) > sequence2[l].original_position or \
-                        max(seq_1_position_history) > sequence1[k].original_position:
-                    return seq2_str[0:max(seq_2_position_history)]
-                nb_imbricate = nb_imbricate + 1
-
-        percent = (nb_imbricate / min_size_sequence) * 100
-
+    data = {
+        "arn1": seq1_str,
+        "arn2": seq2_str,
+        "can_loop": can_loop,
+        "percent_pair": error_percent,
+        "begin_break_loop": begin_break_loop
+    }
+    if can_loop is True:
+        percent = nb_imbricate / min_size_sequence * 100
         if percent > error_percent:
-            logger.warning(f'{seq1_str:26} | {seq2_str:26} | ' +
-                           f'number imbricate {nb_imbricate:2d} : error {percent:1.02f}%')
-    return 0
+            message = f'{seq1_str:26} | {seq2_str:26} | number imbricate {nb_imbricate:2d} : pair {percent:1.02f}%'
+            if logger is not None:
+                logger.warning(message)
+            data["info_pair"] = [message]
+    return data
 
 
 def __permutations__(list_to_permute: list):
@@ -163,7 +174,7 @@ def usage():
         --all_permutations
             If provided : it will generate all permutations possible and compare loop.
             If not : juste compare two arn provided
-            WARNING! It can be dangerous for your server to use this argument because can do memory leak.
+            WARNING! ALPHA VERSION => It can be dangerous for your server to use this argument because can do memory leak.
             Example = --all_permutations
         --log_output
             Specify the path where the log file will be create.
@@ -235,7 +246,12 @@ if __name__ == "__main__":
     if ALL_PERMUTATIONS:
         compare_loop_arn_multiple(arn1, arn2, logger, ERROR_PERCENT, NB_PROCESS)
     else:
-        compare_loop_one_arn(arn1, arn2, logger, ERROR_PERCENT)
+        data = compare_loop_one_arn(arn1, arn2, logger, ERROR_PERCENT)
+        logger.info(data['arn1'])
+        logger.info(data['arn2'])
+        logger.info(data['can_loop'])
+        logger.info(data['info_pair'])
+        logger.info(data['percent_pair'])
     logger.debug("Check sequences Loop Method End.")
     logger.debug("-------------------------------------")
 
