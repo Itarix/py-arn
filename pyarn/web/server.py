@@ -10,6 +10,7 @@ sys.path.append(str(val).split("pyarn")[0])
 import pyarn.comparison.complementary_arn as complementary
 import pyarn.comparison.loop_arn as loop
 import pyarn.comparison.position_arn as position
+import pyarn.comparison.hairpin as hairpin
 from pyarn.models import arn
 
 
@@ -64,6 +65,18 @@ def api_compare_position():
     arn1 = arn.Arn(flask.request.form['arn1'])
     arn2 = arn.Arn(flask.request.form['arn2'])
     data = position.compare_position_arn(arn1, arn2, None)
+    return flask.jsonify(data)
+
+
+@app.route('/calcul/hairpin', methods=['POST'])
+def api_calcul_hairpin():
+    """
+    Endpoint used to compare complementary between 2 arns
+    :return:
+    """
+    arn1 = arn.Arn(flask.request.form['arn1'])
+    percent_pairing = int(flask.request.form['percent_pairing'])
+    data = hairpin.calcul_hairpin(arn1, percent_pairing)
     return flask.jsonify(data)
 
 
