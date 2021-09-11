@@ -24,31 +24,29 @@ def calcul_hairpin(arn1: Arn, percent : int = 30, logger: log.Log = None) -> dic
     for i in range(0, size_sequence_1):
 
         # generate sub arn with last chars
-        sub_arn_to_add = sequence_1[size_sequence_1 - i:]
-        sub_arn1 = ""
-        for tmp in range(0, size_sequence_1 - len(sub_arn_to_add)):
-            sub_arn1 = sub_arn1 + " "
-        sub_arn1 = sub_arn1 + sub_arn_to_add
+        sub_arn1 = sequence_1[size_sequence_1 - i:]
 
         # generate sub arn with firsts chars
-        sub_arn_to_add = sequence_1[:size_sequence_1-i]
-        sub_arn2 = sub_arn_to_add
-        for tmp in range(0, size_sequence_1 - len(sub_arn_to_add)):
-            sub_arn2 = sub_arn2 + " "
+        sub_arn2 = sequence_1[:size_sequence_1-i]
         nb_pair = 0
 
-        for j in range(0, size_sequence_1):
+        for j in range(0, len(sub_arn1)):
             if len(sub_arn1) == 0 or len(sub_arn2) == 0:
                 break
-            if sub_arn1[j] == "" or sub_arn2[j] == "":
+
+            size_arn1 = len(sub_arn1)
+            tmp = size_arn1 - j
+
+            position_sub_arn2 = len(sub_arn2)-tmp
+            if position_sub_arn2 < 0:
                 continue
 
-            if nucleotide.can_pair(sub_arn1[j], sub_arn2[j]):
+            if nucleotide.can_pair(sub_arn1[j], sub_arn2[position_sub_arn2]):
                 nb_pair = nb_pair + 1
 
         percent_pair = nb_pair / size_sequence_1 * 100
         if percent_pair > percent:
-            message = f'{sub_arn1:26} | {sub_arn2:26} | number pair {nb_pair:2d} : pair {percent:1.02f}%'
+            message = f'{sub_arn1:26} | {sub_arn2:26} | number pair {nb_pair:2d} : pair {percent_pair:1.02f}%'
             if logger is not None:
                 logger.warning(message)
             infos_pair.append(message)
