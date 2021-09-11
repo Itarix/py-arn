@@ -231,10 +231,6 @@ if __name__ == "__main__":
         if k == '--nbProcess':
             NB_PROCESS = int(v)
 
-    if len(SEQUENCE_1) > 30 or len(SEQUENCE_2) > 30:
-        print("Arn sequences max size is 30")
-        exit(1)
-
     logger = log.Log(None, IS_VERBOSE, PATH_LOG)
     arn1 = Arn(SEQUENCE_1)
     arn2 = Arn(SEQUENCE_2)
