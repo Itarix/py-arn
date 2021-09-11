@@ -32,14 +32,38 @@ $("#buttonCalcul").click(function (event) {
             const htmlToAddInfosCalcul = `
                  <div class="tmp row">
                      <div class="col border border-secondary text-center">
-                         <p>%s</p>
+                        <div class="col">
+                            <div class="row">
+                                <p>%arn1</p>
+                            </div>
+                            <div class="row">
+                                <p>%arn2</p>                         
+                            </div>
+                        </div>
+                     </div>
+                     <div class="col border border-secondary text-center">
+                        <div class="col">
+                            <div class="row">
+                                <p>Number Pair %nbPair</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <p>Percent Pair %percentPair %</p>
+                            </div>
+                        </div>
                      </div>
                  </div>
              `;
 
             const divInfosHigherPercentPair = $("#divInfosHigherPercentPair");
             for (let i = 0; i < data["info_percent_pairing"].length; i++) {
-                divInfosHigherPercentPair.append(htmlToAddInfosCalcul.replace("%s", data["info_percent_pairing"][i]));
+                tmp = htmlToAddInfosCalcul.replace("%arn1", data["info_percent_pairing"][i]['sub_arn1']);
+                tmp = tmp.replace("%arn2", data["info_percent_pairing"][i]['sub_arn2']);
+                tmp = tmp.replace("%nbPair", data["info_percent_pairing"][i]['nb_pair']);
+                tmp = tmp.replace("%percentPair", data["info_percent_pairing"][i]['percent_pair']);
+
+                divInfosHigherPercentPair.append(tmp);
             }
 
             const divToast = $("#liveToast");

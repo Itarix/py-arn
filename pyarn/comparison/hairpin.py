@@ -26,14 +26,10 @@ def calcul_hairpin(arn1: Arn, percent : int = 30, logger: log.Log = None) -> dic
         # generate sub arn with last chars
         sub_arn1 = sequence_1[size_sequence_1 - i:]
         sub_arn1 = sub_arn1[::-1]
-        print("********** arn1")
-        print(sub_arn1)
+
         # generate sub arn with firsts chars
         sub_arn2 = sequence_1[:size_sequence_1-i]
         nb_pair = 0
-
-        print("********** arn2")
-        print(sub_arn2)
 
         for j in range(0, len(sub_arn1)):
             if len(sub_arn1) == 0 or len(sub_arn2) == 0:
@@ -57,7 +53,21 @@ def calcul_hairpin(arn1: Arn, percent : int = 30, logger: log.Log = None) -> dic
             message = f'{sub_arn1:26} | {sub_arn2:26} | number pair {nb_pair:2d} : pair {percent_pair:1.02f}%'
             if logger is not None:
                 logger.warning(message)
-            infos_pair.append(message)
+
+            if len(sub_arn1) < len(sub_arn2):
+                for l in range(0, len(sub_arn2)):
+                    if len(sub_arn1) >= len(sub_arn2):
+                        break
+
+                    sub_arn1 = "-" + sub_arn1
+
+            dico_infos = {
+                "sub_arn1": sub_arn1,
+                "sub_arn2": sub_arn2,
+                "nb_pair": f'{nb_pair:2d}',
+                "percent_pair": f'{percent_pair:1.02f}',
+            }
+            infos_pair.append(dico_infos)
 
     data = {
         "arn1": sequence_1,
