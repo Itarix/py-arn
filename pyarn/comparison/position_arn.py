@@ -61,7 +61,7 @@ def usage():
         --sequence1
             First Sequence to be compare.
             Example = --sequence1=UCGA
-            Default value is : UCGUACCGUGAGUAAUAAUGCGB
+            Default value is : UCGUACCGUGAGUAAUAAUGCG
         --sequence2
             Second Sequence to be compare. 
             Example = --sequence1=UCGA
@@ -79,8 +79,8 @@ def usage():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCGB"
-    SEQUENCE_2 = "UAACACUGUCUGGUAACGAUGQ"
+    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCG"
+    SEQUENCE_2 = "UAACACUGUCUGGUAACGAUG"
     # jf true so it will add space before sequence 2
     # If False so it will add space before sequence 1
     PATH_LOG = ""

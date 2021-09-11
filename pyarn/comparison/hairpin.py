@@ -3,6 +3,8 @@ import os
 import sys
 from datetime import datetime
 
+from pyarn.models import nucleotide
+
 val = os.path.dirname(sys.path[0])
 sys.path.append(str(val).split("pyarn")[0])
 from pyarn.log import log
@@ -19,17 +21,37 @@ def calcul_hairpin(arn1: Arn, percent : int = 30, logger: log.Log = None) -> dic
     size_sequence_1 = len(sequence_1)
 
     infos_pair = []
-    sub_arn1 = ""
-    sub_arn2 = ""
     for i in range(0, size_sequence_1):
 
         # generate sub arn with last chars
-        sub_arn1 = sequence_1[:i]
+        sub_arn_to_add = sequence_1[size_sequence_1 - i:]
+        sub_arn1 = ""
+        for tmp in range(0, size_sequence_1 - len(sub_arn_to_add)):
+            sub_arn1 = sub_arn1 + " "
+        sub_arn1 = sub_arn1 + sub_arn_to_add
 
         # generate sub arn with firsts chars
-        sub_arn2 = sequence_1[:size_sequence_1-i]
+        sub_arn_to_add = sequence_1[:size_sequence_1-i]
+        sub_arn2 = sub_arn_to_add
+        for tmp in range(0, size_sequence_1 - len(sub_arn_to_add)):
+            sub_arn2 = sub_arn2 + " "
+        nb_pair = 0
 
-        #Todo compare
+        for j in range(0, size_sequence_1):
+            if len(sub_arn1) == 0 or len(sub_arn2) == 0:
+                break
+            if sub_arn1[j] == "" or sub_arn2[j] == "":
+                continue
+
+            if nucleotide.can_pair(sub_arn1[j], sub_arn2[j]):
+                nb_pair = nb_pair + 1
+
+        percent_pair = nb_pair / size_sequence_1 * 100
+        if percent_pair > percent:
+            message = f'{sub_arn1:26} | {sub_arn2:26} | number pair {nb_pair:2d} : pair {percent:1.02f}%'
+            if logger is not None:
+                logger.warning(message)
+            infos_pair.append(message)
 
     data = {
         "arn1": sequence_1,
@@ -50,7 +72,7 @@ def usage():
         --sequence1
             First Sequence to be compare.
             Example = --sequence1=UCGA
-            Default value is : UCGUACCGUGAGUAAUAAUGCGB
+            Default value is : UCGUACCGUGAGUAAUAAUGCG
         --verbose
             If provided ; it will print in standard output logs.
             If not : it will not print logs.
@@ -69,7 +91,7 @@ def usage():
 
 if __name__ == "__main__":
     # execute only if run as a script
-    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCGB"
+    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCG"
     # jf true so it will add space before sequence 2
     # If False so it will add space before sequence 1
     PATH_LOG = ""
