@@ -90,7 +90,7 @@ def usage():
         --sequence1
             First Sequence to be compare.
             Example = --sequence1=UCGA
-            Default value is : UCGUACCGUGAGUAAUAAUGCGB
+            Default value is : UCGUACCGUGAGUAAUAAUGCG
         --sequence2
             Second Sequence to be compare. 
             Example = --sequence1=UCGA
@@ -117,7 +117,7 @@ def usage():
 if __name__ == "__main__":
     # execute only if run as a script
     PAIRING_PERCENT = 30
-    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCGB"
+    SEQUENCE_1 = "UCGUACCGUGAGUAAUAAUGCG"
     SEQUENCE_2 = "UAACACUGUCUGGUAACGAUGQ"
     # jf true so it will add space before sequence 2
     # If False so it will add space before sequence 1
@@ -155,10 +155,6 @@ if __name__ == "__main__":
             ADD_SPACE_SEQUENCE_1 = False
         if k == '--verbose':
             IS_VERBOSE = True
-
-    if len(SEQUENCE_1) > 30 or len(SEQUENCE_2) > 30:
-        print("Error: Arn sequences max size is 30")
-        exit(1)
 
     logger = log.Log(None, IS_VERBOSE, PATH_LOG)
     arn1 = Arn(SEQUENCE_1)

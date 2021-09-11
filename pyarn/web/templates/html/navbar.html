@@ -44,6 +44,16 @@
              href="/html/page/loop_one.html"> Compare Loop for one generation
             </a>
         </li>
+        <li>
+            <a
+            {% if active_page == "hairpin.html" %}
+                aria-current="page" class="nav-link active"
+            {% else %}
+                class="nav-link text-white"
+            {% endif %}
+            href="/html/page/hairpin.html"> Calcul Hairpin
+            </a>
+        </li>
     </ul>
 
     <hr>
