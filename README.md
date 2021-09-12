@@ -14,7 +14,7 @@ You must have install all python packages present in requirements.txt
 You will find multiple script on this repo.
 
 `complementary_arn.py`
-This script will compare the arn on complementary method with add space. Example:
+This script will compare the arn on complementary method while adding space. Example:
 
 Sequence1=ACGU
 
@@ -31,8 +31,14 @@ _ACGU compare to GGGC None None None None
 __ACGU compare to GGGC None None None G can imbricate C
 
 `loop_arn.py`
+This script will compare the arn and check if the arns can loop together:
+
+`hairpin.py`
+This script will calcul the hairpin of the arn.
 
 `generate_permutations_arn.py`
+
+/!\ BETA.
 This script will generate all possible of permutations of arn. The file will contains data like this =>
 
 A0C1G2U3 A0C1U3G2
@@ -65,12 +71,14 @@ To use script you can get help from command line with =>
 
 `python pyarn/comparison/generate_permutations_arn.py --help`
 
+`python pyarn/comparison/hairpin.py --help`
+
 The script will be create/override a file named result.txt which it contains logs of the script. You can see output of
 the script in standard output (terminal) if you use the `verbose` argument
 
 # GUI
 
-To use a GUI, I choose WebBrowser (Firefox/Chrome,Opera, etc...). I created web server with Flask
+To use a GUI, you must launch web server.
 To launch this server :
 
 `python pyarn/web/server.py`
