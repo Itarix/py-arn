@@ -221,7 +221,7 @@ if __name__ == "__main__":
         if k == '--sequence2':
             SEQUENCE_2 = v
         if k == '--percent':
-            ERROR_PERCENT = v
+            ERROR_PERCENT = int(v)
         if k == '--log_output':
             PATH_LOG = v
         if k == '--verbose':
@@ -246,7 +246,8 @@ if __name__ == "__main__":
         logger.info(data['arn1'])
         logger.info(data['arn2'])
         logger.info(data['can_loop'])
-        logger.info(data['info_pair'])
+        if data.get("info_pair") :
+            logger.info(data['info_pair'])
         logger.info(data['percent_pair'])
     logger.debug("Check sequences Loop Method End.")
     logger.debug("-------------------------------------")

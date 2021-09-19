@@ -134,7 +134,7 @@ if __name__ == "__main__":
         if k == '--sequence1':
             SEQUENCE_1 = v
         if k == '--percent':
-            PERCENT_PAIR = v
+            PERCENT_PAIR = int(v)
         if k == '--log_output':
             PATH_LOG = v
         if k == '--verbose':
@@ -150,6 +150,10 @@ if __name__ == "__main__":
     logger.debug("Check sequences Start.")
     data = calcul_hairpin(arn1, PERCENT_PAIR)
     logger.info(data['arn1'])
+    logger.info(data['size_arn1'])
+    logger.info(data['percent_pair'])
+    logger.info(data['info_percent_pairing'])
+
     logger.debug("Check sequences End.")
     logger.debug("-------------------------------------")
     logger.debug("date end : " + str(datetime.now()))

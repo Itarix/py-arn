@@ -148,7 +148,7 @@ if __name__ == "__main__":
         if k == '--sequence2':
             SEQUENCE_2 = v
         if k == '--percent':
-            PAIRING_PERCENT = v
+            PAIRING_PERCENT = int(v)
         if k == '--log_output':
             PATH_LOG = v
         if k == '--decalSeq1':
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     dateDebut = datetime.now()
     logger.debug("date start : " + str(dateDebut))
     logger.debug("-------------------------------------")
-    logger.debug("Check sequences with linear method Start.")
+    logger.debug("Check sequences with complementary method Start.")
     data = compare_complementary_arn(arn1, arn2, logger, ADD_SPACE_SEQUENCE_1, PAIRING_PERCENT)
     logger.info(data['arn1'])
     logger.info(data['arn2'])
