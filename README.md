@@ -3,6 +3,8 @@
 This project was created for iGEM team of GO Paris Saclay 2021.
 This tools was used to compare miARN.
 
+This repo is archived. New repo => https://github.com/Itarix/GO_Paris_Saclay_2021
+
 
 # Requirements
 
