@@ -1,10 +1,11 @@
 # Py-arn
 
 This project was created for iGEM team of GO Paris Saclay 2021.
-This tools was used to compare miARN.
+This tools was used to compare miARN (or ARN).
 
-This repo is archived. New repo => https://github.com/Itarix/GO_Paris_Saclay_2021
+The project has been uploaded on github because Igem's rule. (FYI. the repo for igem 2021 https://github.com/igemsoftware2021/GO_Paris_Saclay_2021).
 
+If you want other version or want ask/add feature, you can create an issue or PR in this actual repo.
 
 # Requirements
 
